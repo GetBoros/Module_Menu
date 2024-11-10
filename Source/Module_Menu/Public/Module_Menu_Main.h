@@ -4,27 +4,29 @@
 #include "Blueprint/UserWidget.h"
 #include "Module_Menu_Main.generated.h"
 
-// UAModule_Menu_Option_Button
-class UTextBlock;
+// UAModule_Menu_Option_Button_Switcher
 class UWidgetSwitcher;
+class UTextBlock;
 class UButton;
 //-----------------------------------------------------------------------------------------------------------
-UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Option_Button : public UUserWidget
-{
+UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Option_Button_Switcher : public UUserWidget
+{// 
 	GENERATED_BODY()
 
 public:
-	void Init(const int button_index, UWidgetSwitcher *widget_switcher);
+	void Create_Button(const int button_index, UWidgetSwitcher *widget_switcher);
 
-	EModule_Menu_Option_Button_Name Option_Button_Name;
+	EModule_Menu_Option_Button_Tabs Button_Switcher_State_Index;
 	UWidgetSwitcher *WidgetSwitcher_Tab;  // After pressed need activate tab
 
+	static UAModule_Menu_Option_Button_Switcher *Button_Previous;
+
+	UPROPERTY(meta = (BindWidget) ) UButton *Button_Hitbox;  // Handle Pressed
+
+private:
 	UFUNCTION() void Button_Pressed();  // Handle Module_Menu_Button_State with unique features
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UTextBlock *Button_Text_Block;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UButton *Button_Hitbox;  // Handle Pressed
-
-	static UAModule_Menu_Option_Button *Button_Previous;
+	UPROPERTY(meta = (BindWidget) ) UTextBlock *Button_Text_Block;
 };
 //-----------------------------------------------------------------------------------------------------------
 
@@ -40,21 +42,24 @@ UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Tab_Button : public UUse
 	GENERATED_BODY()
 
 public:
-	void Init();  // Don`t update after change settings || Percentage resolution don`t work || Try apply resoultion in setting || Make one func with one switch not 2
-
-	void Button_State_Upate();
-	void Get_Button_Tab_State();
-	UFUNCTION() void Set_Button_Tab_State(float changed_value);
+	void Button_Setting_Setup();  // Don`t update after change settings || Percentage resolution don`t work || Try apply resoultion in setting || Make one func with one switch not 2
 
 	EOption_Type Button_Tab_Type;
-	FString Slider_Text_Value;
-	UGameUserSettings *User_Settings;
 
+private:
+	void Get_Tab_Buttons_Settings();  // Use EOption_Type to have unique feature
+	void Set_Tab_Buttons_Settings(const float changed_value);  // Update setting state
+	void Slider_Text_Block_Update(const int button_index);
 	void Toogle_Directx();
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UTextBlock *Button_Text_Block;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UTextBlock *Slider_Text_Block;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) USlider *Button_Slider;
+	UGameUserSettings *User_Settings;
+	FString Slider_Text_Value;
+
+	UFUNCTION() void Button_Slider_Value_Changed(const float changed_value);  // Update setting state
+
+	UPROPERTY(meta = (BindWidget) ) UTextBlock *Button_Text_Block;  // Show curr setting names
+	UPROPERTY(meta = (BindWidget) ) UTextBlock *Slider_Text_Block;  // Show curr setting param
+	UPROPERTY(meta = (BindWidget) ) USlider *Button_Slider;
 };
 //-----------------------------------------------------------------------------------------------------------
 
@@ -70,10 +75,10 @@ UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Option_Tab : public UUse
 	GENERATED_BODY()
 
 public:
-	void Init(const int button_index, TSubclassOf<UUserWidget> tab_button_template);
+	void Create_Tab(const int button_index, TSubclassOf<UUserWidget> tab_button_template);  // Create buttons in tabs & Must be before add | Or not all setting apply to Slider
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UTextBlock *Button_Text_Block;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UVerticalBox *VerticalBox_Root;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UVerticalBox *Vertical_Box_Tab_Buttons;
 };
 //-----------------------------------------------------------------------------------------------------------
 
@@ -89,10 +94,10 @@ UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Option : public UUserWid
 	GENERATED_BODY()
 
 public:
-	void Init_Menu_Option(TSubclassOf<UUserWidget> button_template, TSubclassOf<UUserWidget> tab_template, TSubclassOf<UUserWidget> tab_button_template);
+	void Create_Menu_Option(TSubclassOf<UUserWidget> button_switcher_template, TSubclassOf<UUserWidget> tab_widget_template, TSubclassOf<UUserWidget> tab_button_template);  // button tab ( tab switcher ) | tab template ( stored tab button templates )
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget) ) UHorizontalBox *HorizontalBox_Buttons;  // toggle WidgetSwitcher_Tab
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget) ) UWidgetSwitcher *WidgetSwitcher_Tab;  // Switch widgets
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget) ) UHorizontalBox *Horizontal_Box_Buttons;  // toggle WidgetSwitcher_Tab
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget) ) UWidgetSwitcher *Widget_Switcher_Tab;  // Switch widgets
 };
 //-----------------------------------------------------------------------------------------------------------
 
@@ -108,24 +113,26 @@ UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Main_Button : public UUs
 	GENERATED_BODY()
 
 public:
-	void Init();
+	void Create_Button(const EModule_Menu_Main_Button_State menu_button_state);
 	
-	UUserWidget *Parent_Ptr;
+	EModule_Menu_Main_Button_State Module_Menu_Button_State;  // Each button has unique state
+	UUserWidget *Parent_Ptr;  // Ptr to parent class, useing to remove parent from viewport and destroy all created widget
 	FName Level_To_Open;  // Used to open new level while pressed on New Game or Continue
-	TSubclassOf<UUserWidget> Module_Menu_Option;
-	TSubclassOf<UUserWidget> Module_Menu_Option_Button;
-	TSubclassOf<UUserWidget> Module_Menu_Option_Tab;
-	TSubclassOf<UUserWidget> Module_Menu_Tab_Button;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (ExposeOnSpawn = "true") ) EModule_Menu_Button_State Module_Menu_Button_State;  // Each button has state
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UButton *Button_Hitbox;  // Handle Pressed
+	// !!! Make array of subclass?
+	TSubclassOf<UUserWidget> Module_Menu_Option;
+	TSubclassOf<UUserWidget> Module_Menu_Option_Button_Switcher;
+	TSubclassOf<UUserWidget> Module_Menu_Option_Tab_Widget;
+	TSubclassOf<UUserWidget> Module_Menu_Option_Tab_Button;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UButton *Button_Hitbox;  // Binded in Child of those class
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UTextBlock *Button_Text_Block;  // Handle Pressed
 	UPROPERTY(Transient, meta = (BindWidgetAnim) ) UWidgetAnimation *Button_Animation_Hovered;  // Described in WBP
 
 private:
 	UFUNCTION() void Button_Pressed();  // Handle Module_Menu_Button_State with unique features
-	UFUNCTION() void Button_Hovered();  // Handle Animations
-	UFUNCTION() void Button_Unhovered();  // Handle Animations
+	UFUNCTION() void Button_Hovered();  // Play animation in WBP from 0 to 1
+	UFUNCTION() void Button_Unhovered();  // Play animation in WBP from 1 to 0
 };
 //-----------------------------------------------------------------------------------------------------------
 
@@ -140,12 +147,11 @@ UCLASS(meta = (DisableNativeTick) ) class MODULE_MENU_API UAModule_Menu_Main : p
 	GENERATED_BODY()
 
 public:
-	virtual void Buttons_Menu_Init(const FName &level, const TSubclassOf<UUserWidget> &m_button, const TSubclassOf<UUserWidget> &m_option,
-		const TSubclassOf<UUserWidget> &m_o_button, const TSubclassOf<UUserWidget> &m_o_tab, const TSubclassOf<UUserWidget> &m_o_tab_button);  // !!! TEMP
+	void Buttons_Menu_Init(const FName &level, const TSubclassOf<UUserWidget> &m_button, const TSubclassOf<UUserWidget> &m_option, const TSubclassOf<UUserWidget> &m_o_button, const TSubclassOf<UUserWidget> &m_o_tab, const TSubclassOf<UUserWidget> &m_o_tab_button);  // !!! TEMP
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Store Buttons", meta = (BindWidget) ) UVerticalBox *VerticalBox_Root;
 
 private:
-	UAModule_Menu_Main_Button *Button_Menu_Main[(int)EModule_Menu_Button_State::Buttons_Count];  // All Buttons ptrs || can move to func
+	UAModule_Menu_Main_Button *Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Count];  // All Buttons ptrs || can move to func
 };
 //-----------------------------------------------------------------------------------------------------------

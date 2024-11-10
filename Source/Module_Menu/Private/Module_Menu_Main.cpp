@@ -1,34 +1,36 @@
 #include "Module_Menu_Main.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "GameFramework/GameUserSettings.h"
 
 #include "Components/Slider.h"
 #include "Components/WidgetSwitcher.h"
-#include "Components/HorizontalBox.h"
 #include "Components/TextBlock.h"
-#include "Components/VerticalBox.h"
 #include "Components/Button.h"
+#include "Components/HorizontalBox.h"  // WW
+#include "Components/VerticalBox.h"  // WW
 
 
-// UAModule_Menu_Option_Button
-UAModule_Menu_Option_Button *UAModule_Menu_Option_Button::Button_Previous = 0;
+
+
+// UAModule_Menu_Option_Button_Switcher
+UAModule_Menu_Option_Button_Switcher *UAModule_Menu_Option_Button_Switcher::Button_Previous = 0;
 //-----------------------------------------------------------------------------------------------------------
-void UAModule_Menu_Option_Button::Init(const int button_index, UWidgetSwitcher *widget_switcher)
+void UAModule_Menu_Option_Button_Switcher::Create_Button(const int button_index, UWidgetSwitcher *widget_switcher)
 {
-	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Menu_Option_Buttons_Name[(int)button_index]) );  // Button Name
 	WidgetSwitcher_Tab = widget_switcher;
-	Option_Button_Name = (EModule_Menu_Option_Button_Name)button_index;
-	Button_Hitbox->OnPressed.AddDynamic(this, &UAModule_Menu_Option_Button::Button_Pressed);  // What to do if pressed on button
+	Button_Switcher_State_Index = (EModule_Menu_Option_Button_Tabs)button_index;
+
+	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Menu_Option_Buttons_Name[(int)button_index]) );  // Set button name
+	Button_Hitbox->OnPressed.AddDynamic(this, &UAModule_Menu_Option_Button_Switcher::Button_Pressed);
 }
 //-----------------------------------------------------------------------------------------------------------
-void UAModule_Menu_Option_Button::Button_Pressed()
+void UAModule_Menu_Option_Button_Switcher::Button_Pressed()
 {
 	Button_Previous->Button_Hitbox->SetBackgroundColor(AsModule_Menu_Config::Button_Inactive);  // Redraw prev button to inactive
 	Button_Previous = this;  // not this button is previous
 	Button_Hitbox->SetBackgroundColor(AsModule_Menu_Config::Button_Active);  // Draw this button as active
-	WidgetSwitcher_Tab->SetActiveWidgetIndex( (int)Option_Button_Name);  // Switch Tab
+	WidgetSwitcher_Tab->SetActiveWidgetIndex( (int)Button_Switcher_State_Index);  // Switch Tab
 }
 //-----------------------------------------------------------------------------------------------------------
 
@@ -36,26 +38,22 @@ void UAModule_Menu_Option_Button::Button_Pressed()
 
 
 // UAModule_Menu_Tab_Button
-void UAModule_Menu_Tab_Button::Init()
+void UAModule_Menu_Tab_Button::Button_Setting_Setup()
 {
-	Slider_Text_Value = AsModule_Menu_Config::Slider_Text_Default[(int)ESlider_Text_State::Unhandled];  // !!!
-
 	User_Settings = GEngine->GetGameUserSettings();
+	Slider_Text_Value = AsModule_Menu_Config::Slider_Text_Default[(int)ESlider_Text_State::Unhandled];
+	
+	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Button_Tab_Names[(int)Button_Tab_Type]) );  // Button Name
 	Button_Slider->SetStepSize(1.0f);
 	Button_Slider->SetMaxValue(4.0f);  // Max setting when 4 is Cinematic and 0 is lowest quality
-	Button_Slider->MouseUsesStep = true;  // Slider Step
-	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Button_Tab_Names[(int)Button_Tab_Type]) );  // Button Name
-	Get_Button_Tab_State();
+	Button_Slider->MouseUsesStep = true;  // floor or clamp effect | offset to stepsize
 
-	Button_Slider->OnValueChanged.AddDynamic(this, &UAModule_Menu_Tab_Button::Set_Button_Tab_State);  // What to do if pressed on button
+	Get_Tab_Buttons_Settings();
+
+	Button_Slider->OnValueChanged.AddDynamic(this, &UAModule_Menu_Tab_Button::Button_Slider_Value_Changed);  // What to do if pressed on button
 }
 //-----------------------------------------------------------------------------------------------------------
-void UAModule_Menu_Tab_Button::Button_State_Upate()
-{
-
-}
-//-----------------------------------------------------------------------------------------------------------
-void UAModule_Menu_Tab_Button::Get_Button_Tab_State()
+void UAModule_Menu_Tab_Button::Get_Tab_Buttons_Settings()
 {
 	int i = 0;
 	float button_index = 0.0f;
@@ -125,71 +123,62 @@ void UAModule_Menu_Tab_Button::Get_Button_Tab_State()
 	case EOption_Type::EPT_Show_Frame_Per_Sec:
 		Button_Slider->SetMinValue(0.0f);
 		Button_Slider->SetMaxValue(1.0f);
-		Slider_Text_Value = AsModule_Menu_Config::Slider_Text_Default[(int)ESlider_Text_State::Toogle]; // L"Toogle";
+		Slider_Text_Value = AsModule_Menu_Config::Slider_Text_Default[(int)ESlider_Text_State::Toogle];
 		break;
 	}
 	
-	// Make Func
-	if (EOption_Type::EPT_Graphic_Last > Button_Tab_Type)  // Handle quality settings other is unique
-		if (button_index == -1)  // If presset is custom show it
-			Slider_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Slider_Text_Default[(int)ESlider_Text_State::Custom_Settings]) );  // !!! Only when Pressed is not standart
-		else
-			Slider_Text_Value = AsModule_Menu_Config::Slider_State[(int)button_index];  // Set Quality state
-
-	Slider_Text_Block->SetText(FText::FromString(Slider_Text_Value) );  // Set Unique state
+	Slider_Text_Block_Update(button_index);
 	Button_Slider->SetValue(button_index);  // Apply slider settings
 }
 //-----------------------------------------------------------------------------------------------------------
-void UAModule_Menu_Tab_Button::Set_Button_Tab_State(float changed_value)
+void UAModule_Menu_Tab_Button::Set_Tab_Buttons_Settings(const float changed_value)
 {
-	int Widget_Index = (int)Button_Slider->GetValue();
-	
 	switch (Button_Tab_Type)
 	{
 	case EOption_Type::EPT_Quality_Presset:
-		User_Settings->SetOverallScalabilityLevel(Widget_Index);
+		User_Settings->SetOverallScalabilityLevel(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_Shadows:
-		User_Settings->SetShadowQuality(Widget_Index);
+		User_Settings->SetShadowQuality(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_Foliage:
-		User_Settings->SetFoliageQuality(Widget_Index);
+		User_Settings->SetFoliageQuality(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_Texture:
-		User_Settings->SetTextureQuality(Widget_Index);
+		User_Settings->SetTextureQuality(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_Shading:
-		User_Settings->SetShadingQuality(Widget_Index);
+		User_Settings->SetShadingQuality(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_Reflection:
-		User_Settings->SetReflectionQuality(Widget_Index);
+		User_Settings->SetReflectionQuality(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_Anti_Aliasing:
-		User_Settings->SetAntiAliasingQuality(Widget_Index);
+		User_Settings->SetAntiAliasingQuality(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_Visual_Effects:
-		User_Settings->SetVisualEffectQuality(Widget_Index);
+		User_Settings->SetVisualEffectQuality(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_View_Distances:
-		User_Settings->SetViewDistanceQuality(Widget_Index);
+		User_Settings->SetViewDistanceQuality(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_Post_Processing:
-		User_Settings->SetPostProcessingQuality(Widget_Index);
+		User_Settings->SetPostProcessingQuality(changed_value);
 		break;
 	case EOption_Type::EPT_Quality_Global_Illumination_Quality:
-		User_Settings->SetGlobalIlluminationQuality(Widget_Index);
+		User_Settings->SetGlobalIlluminationQuality(changed_value);
 		break;
 		case EOption_Type::EPT_Window_Mode:
-		User_Settings->SetFullscreenMode(EWindowMode::ConvertIntToWindowMode(Widget_Index) );
-		Slider_Text_Value = AsModule_Menu_Config::Slider_State_Window[(int)Widget_Index];
+		User_Settings->SetFullscreenMode(EWindowMode::ConvertIntToWindowMode(changed_value) );
+		Slider_Text_Value = AsModule_Menu_Config::Slider_State_Window[(int)changed_value];
 		User_Settings->ApplyResolutionSettings(false);
 		break;
 	case EOption_Type::EPT_Frame_Rate:
-		User_Settings->SetFrameRateLimit(Widget_Index);
+		User_Settings->SetFrameRateLimit(changed_value);
 		break;
 	case EOption_Type::EPT_Screen_Resolution:
-		User_Settings->SetScreenResolution(AsModule_Menu_Config::Screen_Resolution_Array[(int)Widget_Index]);
-		Slider_Text_Value = AsModule_Menu_Config::Slider_State_Resoultion[(int)Widget_Index];
+		User_Settings->SetScreenResolution(AsModule_Menu_Config::Screen_Resolution_Array[(int)changed_value]);
+		Slider_Text_Value = AsModule_Menu_Config::Slider_State_Resoultion[(int)changed_value];
 		break;
 	case EOption_Type::EPT_Screen_Percentage:
 		User_Settings->SetResolutionScaleNormalized(changed_value);
@@ -204,14 +193,17 @@ void UAModule_Menu_Tab_Button::Set_Button_Tab_State(float changed_value)
 		Slider_Text_Value = AsModule_Menu_Config::Slider_Text_Default[(int)ESlider_Text_State::Toogled];
 		break;
 	}
-	
+}
+//-----------------------------------------------------------------------------------------------------------
+void UAModule_Menu_Tab_Button::Slider_Text_Block_Update(const int button_index)
+{
 	if (EOption_Type::EPT_Graphic_Last > Button_Tab_Type)  // Handle quality settings other is unique
-		if (Widget_Index == -1)  // If presset is custom show it
+		if (button_index == -1)  // If presset is custom show it
 			Slider_Text_Value = AsModule_Menu_Config::Slider_Text_Default[(int)ESlider_Text_State::Custom_Settings];
 		else
-			Slider_Text_Value = AsModule_Menu_Config::Slider_State[(int)Widget_Index];
+			Slider_Text_Value = AsModule_Menu_Config::Slider_State[(int)button_index];
+
 	Slider_Text_Block->SetText(FText::FromString(Slider_Text_Value) );  // Slider Effects
-	User_Settings->ApplySettings(false);
 }
 //-----------------------------------------------------------------------------------------------------------
 void UAModule_Menu_Tab_Button::Toogle_Directx()
@@ -229,39 +221,43 @@ void UAModule_Menu_Tab_Button::Toogle_Directx()
     UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), TEXT("quit") );  // Exit from game    
 }
 //-----------------------------------------------------------------------------------------------------------
+void UAModule_Menu_Tab_Button::Button_Slider_Value_Changed(const float changed_value)
+{
+	Set_Tab_Buttons_Settings(changed_value);
+	Slider_Text_Block_Update(changed_value);
+	User_Settings->ApplySettings(false);
+}
+//-----------------------------------------------------------------------------------------------------------
 
 
 
 
 // UAModule_Menu_Option_Tab
-void UAModule_Menu_Option_Tab::Init(const int button_index, TSubclassOf<UUserWidget> tab_button_template)
+void UAModule_Menu_Option_Tab::Create_Tab(const int button_index, TSubclassOf<UUserWidget> tab_button_template)
 {// !!! Refactoring
 
-	int index = 0;
-	int tab_size = 0;
-	UAModule_Menu_Tab_Button *tab_button_widget;
+	int tab_button_index = 0, tab_size = 0;
+	UAModule_Menu_Tab_Button *tab_button_widget = 0;
 
 	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Menu_Option_Buttons_Name[(int)button_index]) );  // Button Name
 
-	switch ( (EModule_Menu_Option_Button_Name)button_index)
+	switch ( (EModule_Menu_Option_Button_Tabs)button_index)
 	{
-	case EModule_Menu_Option_Button_Name::Button_Graphics:
-		index = 0;
-		tab_size = (int)EOption_Type::EPT_Graphic_Last;
+	case EModule_Menu_Option_Button_Tabs::Graphics:
+		tab_size = (int)EOption_Type::EPT_Graphic_Last;  // Graphics Tab size | Last valu declared enum
 		break;
-
-	case EModule_Menu_Option_Button_Name::Button_Gameplay:
-		index = (int)EOption_Type::EPT_Window_Mode;
+	case EModule_Menu_Option_Button_Tabs::Gameplay:
+		tab_button_index = (int)EOption_Type::EPT_Window_Mode;
 		tab_size = (int)EOption_Type::EPT_Last;
 		break;
 
-	case EModule_Menu_Option_Button_Name::Button_Keyboard:
+	case EModule_Menu_Option_Button_Tabs::Keyboard:
 		break;
-	case EModule_Menu_Option_Button_Name::Button_Mouse:
+	case EModule_Menu_Option_Button_Tabs::Mouse:
 		break;
-	case EModule_Menu_Option_Button_Name::Button_Audio:
+	case EModule_Menu_Option_Button_Tabs::Audio:
 		break;
-	case EModule_Menu_Option_Button_Name::Buttons_Count:
+	case EModule_Menu_Option_Button_Tabs::Count:
 		break;
 
 	default:
@@ -269,12 +265,13 @@ void UAModule_Menu_Option_Tab::Init(const int button_index, TSubclassOf<UUserWid
 		break;
 	}
 
-	for (index; index < tab_size; index++)
-	{
+	for (tab_button_index; tab_button_index < tab_size; tab_button_index++)
+	{// Create buttons setting
+
 		tab_button_widget = CreateWidget<UAModule_Menu_Tab_Button>(this, tab_button_template);
-		VerticalBox_Root->AddChild(tab_button_widget);
-		tab_button_widget->Button_Tab_Type = (EOption_Type)index;
-		tab_button_widget->Init();
+		tab_button_widget->Button_Tab_Type = (EOption_Type)tab_button_index;
+		tab_button_widget->Button_Setting_Setup();
+		Vertical_Box_Tab_Buttons->AddChild(tab_button_widget);
 	}
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -283,29 +280,27 @@ void UAModule_Menu_Option_Tab::Init(const int button_index, TSubclassOf<UUserWid
 
 
 // UAModule_Menu_Option
-void UAModule_Menu_Option::Init_Menu_Option(TSubclassOf<UUserWidget> button_template, TSubclassOf<UUserWidget> tab_template, TSubclassOf<UUserWidget> tab_button_template)
+void UAModule_Menu_Option::Create_Menu_Option(TSubclassOf<UUserWidget> button_switcher_template, TSubclassOf<UUserWidget> tab_widget_template, TSubclassOf<UUserWidget> tab_button_template)
 {
-	int i = 0;
-	UAModule_Menu_Option_Tab *tab_button = 0;  // tab with widgets buttons
-	UAModule_Menu_Option_Button *button_tab = 0;  // this widget swithes tab
+	UAModule_Menu_Option_Button_Switcher *button_tab_switcher = 0;  // this widget swithes tab
+	UAModule_Menu_Option_Tab *tab_widget = 0;  // tab with widgets buttons
 
-	for (i = 0; i < (int)EModule_Menu_Option_Button_Name::Buttons_Count; i++)
+	for (int button_index = 0; button_index < (int)EModule_Menu_Option_Button_Tabs::Count; button_index++)
 	{// Create buttons and tabs || Inits all and 
 
-		button_tab = CreateWidget<UAModule_Menu_Option_Button>(this, button_template);
-		tab_button = CreateWidget<UAModule_Menu_Option_Tab>(this, tab_template);
+		button_tab_switcher = CreateWidget<UAModule_Menu_Option_Button_Switcher>(this, button_switcher_template);
+		button_tab_switcher->Create_Button(button_index, Widget_Switcher_Tab);
+		Horizontal_Box_Buttons->AddChild(button_tab_switcher);  // Tab Switcher Button
 
-		button_tab->Init(i, WidgetSwitcher_Tab);
-		tab_button->Init(i, tab_button_template);  // Create buttons in tabs
-
-		HorizontalBox_Buttons->AddChild(button_tab);
-		WidgetSwitcher_Tab->AddChild(tab_button);
+		tab_widget = CreateWidget<UAModule_Menu_Option_Tab>(this, tab_widget_template);
+		tab_widget->Create_Tab(button_index, tab_button_template);
+		Widget_Switcher_Tab->AddChild(tab_widget);  // Tab Widget
 	}
 	
-	// !!! Idea || If have save load system can load prev opened tag set it here and draw as active
-	UAModule_Menu_Option_Button::Button_Previous = button_tab;
-	UAModule_Menu_Option_Button::Button_Previous->Button_Hitbox->SetBackgroundColor(AsModule_Menu_Config::Button_Active);
-	WidgetSwitcher_Tab->SetActiveWidgetIndex( (int)UAModule_Menu_Option_Button::Button_Previous->Option_Button_Name);
+	// Redraw Button | Set Switcher | prev button save
+	UAModule_Menu_Option_Button_Switcher::Button_Previous = button_tab_switcher;
+	UAModule_Menu_Option_Button_Switcher::Button_Previous->Button_Hitbox->SetBackgroundColor(AsModule_Menu_Config::Button_Active);
+	Widget_Switcher_Tab->SetActiveWidgetIndex( (int)UAModule_Menu_Option_Button_Switcher::Button_Previous->Button_Switcher_State_Index);
 }
 //-----------------------------------------------------------------------------------------------------------
 
@@ -313,55 +308,49 @@ void UAModule_Menu_Option::Init_Menu_Option(TSubclassOf<UUserWidget> button_temp
 
 
 // UAModule_Menu_Main_Button
-void UAModule_Menu_Main_Button::Init()
+void UAModule_Menu_Main_Button::Create_Button(const EModule_Menu_Main_Button_State menu_button_state)
 {
-	const FString button_name(AsModule_Menu_Config::Menu_Main_Buttons_Text[(int)Module_Menu_Button_State]);
-	
-	if (button_name.IsEmpty() && Button_Animation_Hovered != 0)  // !!! Don`t need
-		AsModule_Menu_Config::Throw();
-	if (!Button_Hitbox != 0)
-		return;
-	Button_Text_Block->SetText(FText::FromString(button_name) );  // Button Name
-	Button_Hitbox->OnPressed.AddDynamic(this, &UAModule_Menu_Main_Button::Button_Pressed);  // What to do if pressed on button
+	Module_Menu_Button_State = menu_button_state;  // Setup unique index
+	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Menu_Main_Buttons_Text[(int)Module_Menu_Button_State]) );  // Setup button name
+
+	// Bind buttons events 
+	Button_Hitbox->OnPressed.AddDynamic(this, &UAModule_Menu_Main_Button::Button_Pressed);
 	Button_Hitbox->OnHovered.AddDynamic(this, &UAModule_Menu_Main_Button::Button_Hovered);
 	Button_Hitbox->OnUnhovered.AddDynamic(this, &UAModule_Menu_Main_Button::Button_Unhovered);
-	
-	PlayAnimation(Button_Animation_Hovered, GetAnimationCurrentTime(Button_Animation_Hovered), 1, EUMGSequencePlayMode::Reverse, 1.0f);  // Anim to end
+
+	PlayAnimation(Button_Animation_Hovered, GetAnimationCurrentTime(Button_Animation_Hovered), 1, EUMGSequencePlayMode::Reverse, 1.0f);  // Play and setup anim to end
 }
 //-----------------------------------------------------------------------------------------------------------
 void UAModule_Menu_Main_Button::Button_Pressed()
 {
+	UAModule_Menu_Option *module_menu_option;
+
 	switch (Module_Menu_Button_State)
 	{
-	case EModule_Menu_Button_State::Button_Start_New_Game:
+	case EModule_Menu_Main_Button_State::New_Game:
 		Parent_Ptr->RemoveFromParent();
-		UGameplayStatics::OpenLevel(this, Level_To_Open, true);  // !!! Change to dinamyc FName || Open New Level || Those level has his own Game Mode set it if u need it
+		UGameplayStatics::OpenLevel(this, Level_To_Open, true);
 		break;
 
-	case EModule_Menu_Button_State::Button_Continues_Game:
-		//UGameplayStatics::OpenLevel(this, Level_To_Open, true);  // !!! Change to dinamyc FName || Open New Level || Those level has his own Game Mode set it if u need it
+	case EModule_Menu_Main_Button_State::Continue:
+		//Parent_Ptr->RemoveFromParent();
 		break;
 
-	case EModule_Menu_Button_State::Button_Open_Options:
-	{
-		UAModule_Menu_Option *module_menu_option;
-
+	case EModule_Menu_Main_Button_State::Settings:
 		module_menu_option = CreateWidget<UAModule_Menu_Option>(this, Module_Menu_Option);
-		//module_menu_option = CreateWidget<UAModule_Menu_Option>(GetWorld()->GetFirstPlayerController(), Module_Menu_Option);
+		module_menu_option->Create_Menu_Option(Module_Menu_Option_Button_Switcher, Module_Menu_Option_Tab_Widget, Module_Menu_Option_Tab_Button);
 		module_menu_option->AddToViewport();
-		module_menu_option->Init_Menu_Option(Module_Menu_Option_Button, Module_Menu_Option_Tab, Module_Menu_Tab_Button);
-	}
 		break;
 
-	case EModule_Menu_Button_State::Button_Open_Achievements:
+	case EModule_Menu_Main_Button_State::Arsenals:
 		AsModule_Menu_Config::Throw();  // !!! Have No Idea || Underdeveloped
 		break;
 
-	case EModule_Menu_Button_State::Button_Open_Arsenal:
+	case EModule_Menu_Main_Button_State::Achivments:
 		AsModule_Menu_Config::Throw();  // !!! Have No Idea || Underdeveloped
 		break;
 
-	case EModule_Menu_Button_State::Button_Exit_Game:
+	case EModule_Menu_Main_Button_State::Exit:
 		UKismetSystemLibrary::QuitGame(this, 0, EQuitPreference::Quit, false);
 		break;
 	}
@@ -384,27 +373,25 @@ void UAModule_Menu_Main_Button::Button_Unhovered()
 
 
 // UAModule_Menu_Main
-void UAModule_Menu_Main::Buttons_Menu_Init(const FName &level, const TSubclassOf<UUserWidget> &m_button, const TSubclassOf<UUserWidget> &m_option,
-	const TSubclassOf<UUserWidget> &m_o_button, const TSubclassOf<UUserWidget> &m_o_tab, const TSubclassOf<UUserWidget> &m_o_tab_button)
+void UAModule_Menu_Main::Buttons_Menu_Init(const FName &level, const TSubclassOf<UUserWidget> &m_button, const TSubclassOf<UUserWidget> &m_option, const TSubclassOf<UUserWidget> &m_o_button, const TSubclassOf<UUserWidget> &m_o_tab, const TSubclassOf<UUserWidget> &m_o_tab_button)
 {
-	for (int i = 0; i < (int)EModule_Menu_Button_State::Buttons_Count; i++)
-	{// Create Menu Main Buttons
+	for (int i = 0; i < (int)EModule_Menu_Main_Button_State::Count; i++)
+	{// Create Menu Main Buttons based on declared buttons state
 
-		Button_Menu_Main[i] = CreateWidget<UAModule_Menu_Main_Button>(this, m_button);  // Create widgets baset on Button_Menu_Template
-		Button_Menu_Main[i]->Module_Menu_Button_State = (EModule_Menu_Button_State)i;  // Set Button feature
-		Button_Menu_Main[i]->Init();  // Need Apply Button Settings
-
-		VerticalBox_Root->AddChild(Button_Menu_Main[i]);  // Add widget as child to horrizontal box
+		Menu_Button_Array[i] = CreateWidget<UAModule_Menu_Main_Button>(this, m_button);  // Create widgets based Menu Main Button Template
+		Menu_Button_Array[i]->Create_Button( (EModule_Menu_Main_Button_State)i);  // Set unique button state described in class
+		VerticalBox_Root->AddChild(Menu_Button_Array[i]);  // Add widget as child to horrizontal box
 	}
 
 	// 1.0. Add features to unique buttons
-	Button_Menu_Main[(int)EModule_Menu_Button_State::Button_Start_New_Game]->Parent_Ptr = this;
-	Button_Menu_Main[(int)EModule_Menu_Button_State::Button_Start_New_Game]->Level_To_Open = level;
+	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::New_Game]->Parent_Ptr = this;  // Need to destroy all widgets
+	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::New_Game]->Level_To_Open = level;  // Name to open level while new game pressed button
 
-	Button_Menu_Main[(int)EModule_Menu_Button_State::Button_Open_Options]->Parent_Ptr = this;
-	Button_Menu_Main[(int)EModule_Menu_Button_State::Button_Open_Options]->Module_Menu_Option = m_option;
-	Button_Menu_Main[(int)EModule_Menu_Button_State::Button_Open_Options]->Module_Menu_Option_Button = m_o_button;
-	Button_Menu_Main[(int)EModule_Menu_Button_State::Button_Open_Options]->Module_Menu_Option_Tab = m_o_tab;
-	Button_Menu_Main[(int)EModule_Menu_Button_State::Button_Open_Options]->Module_Menu_Tab_Button = m_o_tab_button;
+	// 1.1. Option Button, Set templates needet to create all buttons tabs other widgets
+	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Parent_Ptr = this;
+	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Module_Menu_Option = m_option;
+	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Module_Menu_Option_Button_Switcher = m_o_button;  // 
+	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Module_Menu_Option_Tab_Widget = m_o_tab;  // it`s tab stored tab buttons
+	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Module_Menu_Option_Tab_Button = m_o_tab_button;  // it`s template button in tab
 }
 //-----------------------------------------------------------------------------------------------------------
