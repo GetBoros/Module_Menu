@@ -10,9 +10,6 @@
 #include "Components/HorizontalBox.h"  // WW
 #include "Components/VerticalBox.h"  // WW
 
-
-
-
 // UAModule_Menu_Option_Button_Switcher
 UAModule_Menu_Option_Button_Switcher *UAModule_Menu_Option_Button_Switcher::Button_Previous = 0;
 //-----------------------------------------------------------------------------------------------------------
@@ -95,9 +92,11 @@ void UAModule_Menu_Tab_Button::Get_Tab_Buttons_Settings()
 	case EOption_Type::EPT_Quality_Global_Illumination_Quality:
 		button_index = User_Settings->GetGlobalIlluminationQuality();
 		break;
-	case EOption_Type::EPT_Window_Mode:
-		Button_Slider->SetMaxValue(3.0f);
-		button_index = (EWindowMode::Type)User_Settings->GetDefaultWindowMode();
+	case EOption_Type::EPT_Window_Mode:  // !!! Bad To apply imediatly
+		Button_Slider->SetMaxValue(2.0f);
+		button_index = User_Settings->GetFullscreenMode();
+		User_Settings->SetFullscreenMode((EWindowMode::Type)button_index);
+		User_Settings->ApplySettings(false);
 		Slider_Text_Value = AsModule_Menu_Config::Slider_State_Window[(int)button_index];
 		break;
 	case EOption_Type::EPT_Frame_Rate:
@@ -106,11 +105,12 @@ void UAModule_Menu_Tab_Button::Get_Tab_Buttons_Settings()
 		button_index = (int)User_Settings->GetFrameRateLimit();
 		Slider_Text_Value = FString::FromInt(button_index);
 		break;
-	case EOption_Type::EPT_Screen_Resolution:
+	case EOption_Type::EPT_Screen_Resolution:  // Fix those
 		int_point = User_Settings->GetScreenResolution();
 		for (i = 0; i < AsModule_Menu_Config::Button_Setting_Count; i++)  // Find current screen resolution | need to redraw current setting
 			if (AsModule_Menu_Config::Screen_Resolution_Array[i] == int_point)
-				Slider_Text_Value = AsModule_Menu_Config::Slider_State_Resoultion[(int)(button_index = i)];
+				button_index = i;
+		Slider_Text_Value = AsModule_Menu_Config::Slider_State_Resoultion[(int)button_index];
 		break;
 	case EOption_Type::EPT_Screen_Percentage:
 		Button_Slider->SetStepSize(0.1f);
@@ -168,16 +168,16 @@ void UAModule_Menu_Tab_Button::Set_Tab_Buttons_Settings(const float changed_valu
 	case EOption_Type::EPT_Quality_Global_Illumination_Quality:
 		User_Settings->SetGlobalIlluminationQuality(changed_value);
 		break;
-		case EOption_Type::EPT_Window_Mode:
-		User_Settings->SetFullscreenMode(EWindowMode::ConvertIntToWindowMode(changed_value) );
+	case EOption_Type::EPT_Window_Mode:
+		User_Settings->SetFullscreenMode(EWindowMode::ConvertIntToWindowMode( (int)changed_value) );
 		Slider_Text_Value = AsModule_Menu_Config::Slider_State_Window[(int)changed_value];
-		User_Settings->ApplyResolutionSettings(false);
 		break;
 	case EOption_Type::EPT_Frame_Rate:
 		User_Settings->SetFrameRateLimit(changed_value);
 		break;
 	case EOption_Type::EPT_Screen_Resolution:
 		User_Settings->SetScreenResolution(AsModule_Menu_Config::Screen_Resolution_Array[(int)changed_value]);
+		User_Settings->ApplyResolutionSettings(false);
 		Slider_Text_Value = AsModule_Menu_Config::Slider_State_Resoultion[(int)changed_value];
 		break;
 	case EOption_Type::EPT_Screen_Percentage:
@@ -225,7 +225,9 @@ void UAModule_Menu_Tab_Button::Button_Slider_Value_Changed(const float changed_v
 {
 	Set_Tab_Buttons_Settings(changed_value);
 	Slider_Text_Block_Update(changed_value);
+
 	User_Settings->ApplySettings(false);
+	User_Settings->SaveConfig();  // Saved to config?
 }
 //-----------------------------------------------------------------------------------------------------------
 
@@ -233,24 +235,23 @@ void UAModule_Menu_Tab_Button::Button_Slider_Value_Changed(const float changed_v
 
 
 // UAModule_Menu_Option_Tab
-void UAModule_Menu_Option_Tab::Create_Tab(const int button_index, TSubclassOf<UUserWidget> tab_button_template)
-{// !!! Refactoring
+void UAModule_Menu_Option_Tab::Create_Tab(EModule_Menu_Option_Button_Tabs tab_button, TSubclassOf<UUserWidget> &tab_button_template)
+{
 
 	int tab_button_index = 0, tab_size = 0;
 	UAModule_Menu_Tab_Button *tab_button_widget = 0;
 
-	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Menu_Option_Buttons_Name[(int)button_index]) );  // Button Name
+	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Menu_Option_Buttons_Name[(int)tab_button]) );  // Button Name
 
-	switch ( (EModule_Menu_Option_Button_Tabs)button_index)
+	switch (tab_button)
 	{
 	case EModule_Menu_Option_Button_Tabs::Graphics:
-		tab_size = (int)EOption_Type::EPT_Graphic_Last;  // Graphics Tab size | Last valu declared enum
+		tab_size = static_cast<int>(EOption_Type::EPT_Graphic_Last);  // Graphics Tab size | Last valu declared enum
 		break;
 	case EModule_Menu_Option_Button_Tabs::Gameplay:
 		tab_button_index = (int)EOption_Type::EPT_Window_Mode;
 		tab_size = (int)EOption_Type::EPT_Last;
 		break;
-
 	case EModule_Menu_Option_Button_Tabs::Keyboard:
 		break;
 	case EModule_Menu_Option_Button_Tabs::Mouse:
@@ -259,9 +260,7 @@ void UAModule_Menu_Option_Tab::Create_Tab(const int button_index, TSubclassOf<UU
 		break;
 	case EModule_Menu_Option_Button_Tabs::Count:
 		break;
-
 	default:
-		return;
 		break;
 	}
 
@@ -280,7 +279,7 @@ void UAModule_Menu_Option_Tab::Create_Tab(const int button_index, TSubclassOf<UU
 
 
 // UAModule_Menu_Option
-void UAModule_Menu_Option::Create_Menu_Option(TSubclassOf<UUserWidget> button_switcher_template, TSubclassOf<UUserWidget> tab_widget_template, TSubclassOf<UUserWidget> tab_button_template)
+void UAModule_Menu_Option::Create_Menu_Option(TArray<TSubclassOf<UUserWidget>> *widget_type)
 {
 	UAModule_Menu_Option_Button_Switcher *button_tab_switcher = 0;  // this widget swithes tab
 	UAModule_Menu_Option_Tab *tab_widget = 0;  // tab with widgets buttons
@@ -288,12 +287,12 @@ void UAModule_Menu_Option::Create_Menu_Option(TSubclassOf<UUserWidget> button_sw
 	for (int button_index = 0; button_index < (int)EModule_Menu_Option_Button_Tabs::Count; button_index++)
 	{// Create buttons and tabs || Inits all and 
 
-		button_tab_switcher = CreateWidget<UAModule_Menu_Option_Button_Switcher>(this, button_switcher_template);
+		button_tab_switcher = CreateWidget<UAModule_Menu_Option_Button_Switcher>(this, (*widget_type)[(int)EModule_Menu_Widget_Type::WT_Option_Button]);
 		button_tab_switcher->Create_Button(button_index, Widget_Switcher_Tab);
 		Horizontal_Box_Buttons->AddChild(button_tab_switcher);  // Tab Switcher Button
 
-		tab_widget = CreateWidget<UAModule_Menu_Option_Tab>(this, tab_widget_template);
-		tab_widget->Create_Tab(button_index, tab_button_template);
+		tab_widget = CreateWidget<UAModule_Menu_Option_Tab>(this, (*widget_type)[(int)EModule_Menu_Widget_Type::WT_Option_Tab]);
+		tab_widget->Create_Tab(static_cast<EModule_Menu_Option_Button_Tabs>(button_index), (*widget_type)[(int)EModule_Menu_Widget_Type::WT_Option_Tab_Button]);
 		Widget_Switcher_Tab->AddChild(tab_widget);  // Tab Widget
 	}
 	
@@ -311,7 +310,7 @@ void UAModule_Menu_Option::Create_Menu_Option(TSubclassOf<UUserWidget> button_sw
 void UAModule_Menu_Main_Button::Create_Button(const EModule_Menu_Main_Button_State menu_button_state)
 {
 	Module_Menu_Button_State = menu_button_state;  // Setup unique index
-	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Menu_Main_Buttons_Text[(int)Module_Menu_Button_State]) );  // Setup button name
+	Button_Text_Block->SetText(AsModule_Menu_Config::Get_Menu_Main_Text(Module_Menu_Button_State) );  // Setup button name
 
 	// Bind buttons events 
 	Button_Hitbox->OnPressed.AddDynamic(this, &UAModule_Menu_Main_Button::Button_Pressed);
@@ -337,8 +336,8 @@ void UAModule_Menu_Main_Button::Button_Pressed()
 		break;
 
 	case EModule_Menu_Main_Button_State::Settings:
-		module_menu_option = CreateWidget<UAModule_Menu_Option>(this, Module_Menu_Option);
-		module_menu_option->Create_Menu_Option(Module_Menu_Option_Button_Switcher, Module_Menu_Option_Tab_Widget, Module_Menu_Option_Tab_Button);
+		module_menu_option = CreateWidget<UAModule_Menu_Option>(this, (*Widget_Type)[(int)EModule_Menu_Widget_Type::WT_Option]);
+		module_menu_option->Create_Menu_Option(Widget_Type);
 		module_menu_option->AddToViewport();
 		break;
 
@@ -373,25 +372,24 @@ void UAModule_Menu_Main_Button::Button_Unhovered()
 
 
 // UAModule_Menu_Main
-void UAModule_Menu_Main::Buttons_Menu_Init(const FName &level, const TSubclassOf<UUserWidget> &m_button, const TSubclassOf<UUserWidget> &m_option, const TSubclassOf<UUserWidget> &m_o_button, const TSubclassOf<UUserWidget> &m_o_tab, const TSubclassOf<UUserWidget> &m_o_tab_button)
+void UAModule_Menu_Main::Buttons_Menu_Setup(const FName &level, TArray<TSubclassOf<UUserWidget>> &widget_type)
 {
+	UAModule_Menu_Main_Button *menu_button_array[(int)EModule_Menu_Main_Button_State::Count];  // All Buttons ptrs || can move to func
+	
 	for (int i = 0; i < (int)EModule_Menu_Main_Button_State::Count; i++)
 	{// Create Menu Main Buttons based on declared buttons state
 
-		Menu_Button_Array[i] = CreateWidget<UAModule_Menu_Main_Button>(this, m_button);  // Create widgets based Menu Main Button Template
-		Menu_Button_Array[i]->Create_Button( (EModule_Menu_Main_Button_State)i);  // Set unique button state described in class
-		VerticalBox_Root->AddChild(Menu_Button_Array[i]);  // Add widget as child to horrizontal box
+		menu_button_array[i] = CreateWidget<UAModule_Menu_Main_Button>(this, widget_type[(int)EModule_Menu_Widget_Type::WT_Main_Button]);  // Create widgets based Menu Main Button Template
+		menu_button_array[i]->Create_Button( (EModule_Menu_Main_Button_State)i);  // Set unique button state described in class
+		Vertical_Box_Menu_Buttons->AddChild(menu_button_array[i]);  // Add widget as child to horrizontal box
 	}
 
 	// 1.0. Add features to unique buttons
-	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::New_Game]->Parent_Ptr = this;  // Need to destroy all widgets
-	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::New_Game]->Level_To_Open = level;  // Name to open level while new game pressed button
+	menu_button_array[(int)EModule_Menu_Main_Button_State::New_Game]->Parent_Ptr = this;  // Need to destroy all widgets
+	menu_button_array[(int)EModule_Menu_Main_Button_State::New_Game]->Level_To_Open = level;  // Name to open level while new game pressed button
 
 	// 1.1. Option Button, Set templates needet to create all buttons tabs other widgets
-	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Parent_Ptr = this;
-	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Module_Menu_Option = m_option;
-	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Module_Menu_Option_Button_Switcher = m_o_button;  // 
-	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Module_Menu_Option_Tab_Widget = m_o_tab;  // it`s tab stored tab buttons
-	Menu_Button_Array[(int)EModule_Menu_Main_Button_State::Settings]->Module_Menu_Option_Tab_Button = m_o_tab_button;  // it`s template button in tab
+	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Parent_Ptr = this;
+	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Widget_Type = &widget_type;
 }
 //-----------------------------------------------------------------------------------------------------------

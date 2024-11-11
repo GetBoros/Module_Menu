@@ -1,8 +1,7 @@
 #pragma once
+#include <Internationalization/Text.h>
 
-//#include "CoreMinimal.h"
-
-// EModule_Menu_Main_Button_State
+// ENUMS
 enum class EModule_Menu_Main_Button_State : uint8
 {
     New_Game,
@@ -14,14 +13,9 @@ enum class EModule_Menu_Main_Button_State : uint8
 	Count
 };
 //------------------------------------------------------------------------------------------------------------
-
-
-
-
-// EModule_Menu_Option_Button_Tabs
 enum class EModule_Menu_Option_Button_Tabs : uint8
 {
-    Graphics,
+    Graphics = 0,
     Gameplay,
     Keyboard,
     Mouse,
@@ -29,11 +23,6 @@ enum class EModule_Menu_Option_Button_Tabs : uint8
 	Count
 };
 //------------------------------------------------------------------------------------------------------------
-
-
-
-
-// EOption_Type
 enum class EOption_Type : uint8
 {
 	// Graphics
@@ -59,10 +48,6 @@ enum class EOption_Type : uint8
 	EPT_Last
 };
 //----------------------------------------------------------------------------------------------------------- 
-
-
-
-// ESlider_Text_State
 enum class ESlider_Text_State : uint8
 {
 	Unhandled,
@@ -72,6 +57,18 @@ enum class ESlider_Text_State : uint8
 	Count
 };
 //----------------------------------------------------------------------------------------------------------- 
+enum class EModule_Menu_Widget_Type : uint8
+{
+	WT_Main,
+	WT_Main_Button,
+	WT_Option,
+	WT_Option_Button,
+	WT_Option_Tab,
+	WT_Option_Tab_Button,
+	WT_Count
+};
+//----------------------------------------------------------------------------------------------------------- 
+
 
 
 
@@ -79,8 +76,7 @@ enum class ESlider_Text_State : uint8
 class MODULE_MENU_API AsModule_Menu_Config
 {
 public:
-	~AsModule_Menu_Config();
-	AsModule_Menu_Config();
+	static const FText Get_Menu_Main_Text(const EModule_Menu_Main_Button_State menu_main_button_index);  // Localization Template
 
 	static constexpr int Button_Setting_Count = 5;
 	static constexpr FLinearColor Button_Active = FLinearColor(0.017642f, 0.026241f, 0.056128f);
