@@ -1,5 +1,6 @@
 #pragma once
 #include <Internationalization/Text.h>
+#include "GameFramework/GameUserSettings.h"
 
 // ENUMS
 enum class EModule_Menu_Main_Button_State : uint8
@@ -73,10 +74,14 @@ enum class EModule_Menu_Widget_Type : uint8
 
 
 // AsModule_Menu_Config
+
+class UGameUserSettings;
 class MODULE_MENU_API AsModule_Menu_Config
 {
 public:
 	static const FText Get_Menu_Main_Text(const EModule_Menu_Main_Button_State menu_main_button_index);  // Localization Template
+
+	static UGameUserSettings *User_Settings;
 
 	static constexpr int Button_Setting_Count = 5;
 	static constexpr FLinearColor Button_Active = FLinearColor(0.017642f, 0.026241f, 0.056128f);
@@ -88,7 +93,7 @@ public:
 	static constexpr const wchar_t *Button_Tab_Names[static_cast<int>(EOption_Type::EPT_Last)] = { 
 		L"Quality Presset : ", L"Shadows : ", L"Foliage : ", L"Texture : ", L"Shading : ", L"Reflection : ", L"Anti Aliasing : ",
 		L"Visual Effects : ", L"View Distances : ", L"Post Processing : ", L"Global Illumination Quality : ", L"",
-		L"Window Mode : ", L"Frame Rate : ", L"Screen Resolution : ", L"Screen Percentage : ", L"Toogle Directx : ", L"Show Frame Per Sec" };
+		L"Window Mode : ", L"Frame Rate : ", L"Screen Resolution : ", L"Screen Percentage : ", L"Toogle Directx : ", L"Show FPS : " };
 	
 	static constexpr const wchar_t *Menu_Main_Buttons_Text[static_cast<int>(EModule_Menu_Main_Button_State::Count)] = { L"New Game", L"Continues", L"Options", L"Achievements", L"Arsenal", L"Exit Game" };
 	static constexpr const wchar_t *Menu_Option_Buttons_Name[static_cast<int>(EModule_Menu_Option_Button_Tabs::Count)] = { L"Graphics", L"Gameplay", L"Keyboard", L"Audio", L"Mouse" };

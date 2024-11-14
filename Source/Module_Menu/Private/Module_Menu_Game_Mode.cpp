@@ -1,5 +1,4 @@
 #include "Module_Menu_Game_Mode.h"
-#include "GameFramework/GameUserSettings.h"
 
 // AModule_Menu_Game_Mode
 AAModule_Menu_Game_Mode::AAModule_Menu_Game_Mode()
@@ -12,11 +11,12 @@ void AAModule_Menu_Game_Mode::Create_Menu_Main()
 	UAModule_Menu_Main *module_menu_widget = 0;
 	APlayerController *player_controller = 0;
 	FInputModeUIOnly input_mode_ui_only {};
-	auto User_Settings = GEngine->GetGameUserSettings();
 
-	//User_Settings->LoadConfig();
-	User_Settings->LoadSettings();
-	User_Settings->ApplySettings(false);
+	// Or make in one func?
+	AsModule_Menu_Config::User_Settings = GEngine->GetGameUserSettings();
+	AsModule_Menu_Config::User_Settings->LoadSettings();
+	AsModule_Menu_Config::User_Settings->ApplySettings(false);
+
 	player_controller = GetWorld()->GetFirstPlayerController();
 	player_controller->SetShowMouseCursor(true);
 	player_controller->SetInputMode(input_mode_ui_only);
