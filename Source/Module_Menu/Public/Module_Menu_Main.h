@@ -38,22 +38,20 @@ class UTextBlock;
 class USlider;
 //-----------------------------------------------------------------------------------------------------------
 UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Tab_Button : public UUserWidget
-{// Make as more as i can const func
+{
 	GENERATED_BODY()
 
 public:
-	void Button_Setting_Setup();  // Don`t update after change settings || Percentage resolution don`t work || Try apply resoultion in setting || Make one func with one switch not 2
+	void Button_Setting_Setup();  // Starting point
 
 	EOption_Type Button_Tab_Type;
 
 private:
 	void Get_Tab_Buttons_Settings();  // Use EOption_Type to have unique feature | Initialize Slider value
 	void Set_Tab_Buttons_Settings(const float changed_value);  // Update setting state
-	void Slider_Text_Block_Update(const int button_index);
-	void Toogle_Directx();
-	void Update_Button_Quality() const;
-
-	FString Slider_Text_Value;
+	void Slider_Text_Block_Update(const int button_index);  // Set unique text to slider text block use Slider Text Value
+	void Button_Quality_Redrawing() const;  // Update all quality tab button while change presset
+	void DirectX_Switcher() const;
 
 	UFUNCTION() void Button_Slider_Value_Changed(const float changed_value);  // Update setting state
 	UFUNCTION() void Settings_Apply();  // Apply and save settings to config

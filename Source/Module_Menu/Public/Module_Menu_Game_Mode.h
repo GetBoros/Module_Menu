@@ -22,8 +22,19 @@ public:
 
 
 
+//-----------------------------------------------------------------------------------------------------------
+#pragma region HOTKEYS
+/*
+- Quick Search:
+	- CTRL + T || + Q ||
+- Go To Line:
+	- CTRL + G
 
-// TASKS
+
+*/
+#pragma endregion
+//-----------------------------------------------------------------------------------------------------------
+#pragma region TASKS Menu Main
 /*
 	- How we can do code better?:
 V		- Apply resolution only when released button | Window Mode too | Directx | Show Frame
@@ -31,15 +42,28 @@ V		- Toogle Directx show current DX12|11
 V		- 70 fps on dxt 11
 V		- Frame rate slider text don`t update in shipping show
 V	- Make User_Config statis as AsModule_Menu
-	- Quality Presset:
-		- Change other settings like shadow, texture, foliage just update visual in UI
-			- When Change presset need refresh all button | menu quality?
-			- Get All Tab button and call again Get Tab Button Settings?
+V	- Try to make as more as can const func or don`t need?
 
-	- Hide Menu Main when press on Option:
-		- Show character or mesh to show current quality?
-		- If Menu Main Collapse how to set visible
+//-----------------------------------------------------------------------------------------------------------
+// Current
+//-----------------------------------------------------------------------------------------------------------
+V	- Quality Presset:
+V		- Change other settings like shadow, texture, foliage just update visual in UI
+V			- When Change presset need refresh all button | menu quality?
+V			- Get All Tab button and call again Get Tab Button Settings?
+
+V	- Menu Main
+V		- Can hide background Menu
+
+X	- Localization:
+		- Set Full localization 2 language
+		- Optimaze, Refactoring
+
+X	- New Game Open Level
+		- Create Level with simple map without lumen nanite
+
 */
+//-----------------------------------------------------------------------------------------------------------
 
 // SOMEDAY
 /*
@@ -48,12 +72,5 @@ X		- Changed language don`t save, from eng to ru, when restart game again eng
 
 */
 
-// HOTKEYS
-/*
-	- Quick Search:
-		- CTRL + T || + Q || 
-	- Go To Line:
-		- CTRL + G
-
-
-*/
+#pragma endregion
+//-----------------------------------------------------------------------------------------------------------
