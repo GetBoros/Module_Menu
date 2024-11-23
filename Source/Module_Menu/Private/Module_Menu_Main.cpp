@@ -53,7 +53,7 @@ void UAModule_Menu_Tab_Button::Get_Tab_Buttons_Settings()
 	FIntPoint int_point {};
 	FString slider_text_value;  // Used to update Slider Text Block
 
-	Button_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Button_Tab_Names[(int)Button_Tab_Type]) );  // Button Name
+	Button_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Tab_Button_Name(Button_Tab_Type) );  // Button Name
 
 	switch (Button_Tab_Type)
 	{// For current button type have unique button setting || Get Setting to an apply it || And Limiting Sliders for unique settings
@@ -182,7 +182,7 @@ void UAModule_Menu_Tab_Button::Set_Tab_Buttons_Settings(const float changed_valu
 		break;
 	case EOption_Type::EPT_Window_Mode:
 		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetFullscreenMode(EWindowMode::ConvertIntToWindowMode( (int)changed_value) );
-		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Window((int)changed_value) );
+		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Window( (int)changed_value) );
 
 		break;
 	case EOption_Type::EPT_Frame_Rate:
@@ -200,11 +200,11 @@ void UAModule_Menu_Tab_Button::Set_Tab_Buttons_Settings(const float changed_valu
 		break;
 	case EOption_Type::EPT_DirectX_Switcher:
 		DirectX_Switcher();
-		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Custom((int)ESlider_Text_State::Toogled) );
+		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Custom( (int)ESlider_Text_State::Toogled) );
 		break;
 	case EOption_Type::EPT_Show_Frame_Per_Sec:
 		UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), TEXT("stat fps") );  // Exit from game
-		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Custom((int)ESlider_Text_State::Toogled) );
+		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Custom( (int)ESlider_Text_State::Toogled) );
 		break;
 	case EOption_Type::EPT_Last:
 		break;
@@ -364,8 +364,8 @@ void UAModule_Menu_Main_Button::Button_Pressed()
 	switch (Module_Menu_Button_State)
 	{
 	case EModule_Menu_Main_Button_State::New_Game:
+		UGameplayStatics::OpenLevel(GetWorld(), Level_To_Open);
 		Parent_Ptr->RemoveFromParent();
-		UGameplayStatics::OpenLevel(this, Level_To_Open, true);
 		break;
 
 	case EModule_Menu_Main_Button_State::Continue:

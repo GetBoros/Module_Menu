@@ -1,4 +1,5 @@
 #include "Module_Menu_Config.h"
+#include <Internationalization/Text.h>
 
 // AsModule_Menu_Config
 UGameUserSettings *AsModule_Menu_Config::User_Settings = 0;
@@ -98,14 +99,53 @@ const FText AsModule_Menu_Config::Get_Localization_Text_Slider_State_Custom(cons
     }
 }
 //------------------------------------------------------------------------------------------------------------
+const FText AsModule_Menu_Config::Get_Localization_Text_Tab_Button_Name(const EOption_Type button_type)
+{
+    switch (button_type)
+    {
+    case EOption_Type::EPT_Quality_Presset:
+        return LOCTEXT("Quality Presset", "Quality Presset : ");
+    case EOption_Type::EPT_Quality_Shadows:
+        return LOCTEXT("Shadows", "Shadows : ");
+    case EOption_Type::EPT_Quality_Foliage:
+        return LOCTEXT("Foliage", "Foliage : ");
+    case EOption_Type::EPT_Quality_Texture:
+        return LOCTEXT("Texture", "Texture : ");
+    case EOption_Type::EPT_Quality_Shading:
+        return LOCTEXT("Shading", "Shading : ");
+    case EOption_Type::EPT_Quality_Reflection:
+        return LOCTEXT("Reflection", "Reflection : ");
+    case EOption_Type::EPT_Quality_Anti_Aliasing:
+        return LOCTEXT("Anti Aliasing", "Anti Aliasing : ");
+    case EOption_Type::EPT_Quality_Visual_Effects:
+        return LOCTEXT("Visual Effects", "Visual Effects : ");
+    case EOption_Type::EPT_Quality_View_Distances:
+        return LOCTEXT("View Distances", "View Distances : ");
+    case EOption_Type::EPT_Quality_Post_Processing:
+        return LOCTEXT("Post Processing", "Post Processing : ");
+    case EOption_Type::EPT_Quality_Global_Illumination_Quality:
+        return LOCTEXT("Global Illumination", "Global Illumination : ");
+    case EOption_Type::EPT_Window_Mode:
+        return LOCTEXT("Window Mode", "Window Mode : ");
+    case EOption_Type::EPT_Frame_Rate:
+        return LOCTEXT("Frame Rate", "Frame Rate : ");
+    case EOption_Type::EPT_Screen_Resolution:
+        return LOCTEXT("Screen Resolution", "Screen Resolution : ");
+    case EOption_Type::EPT_Screen_Percentage:
+        return LOCTEXT("Screen Percentage ", "Screen Percentage  : ");
+    case EOption_Type::EPT_DirectX_Switcher:
+        return LOCTEXT("Toogle Directx", "Toogle Directx : ");
+    case EOption_Type::EPT_Show_Frame_Per_Sec:
+        return LOCTEXT("Show FPS", "Show FPS : ");
+    default:
+        return LOCTEXT("EOption_Type Invalid", "Invalid index EOption_Type");
+    }
+}
+//------------------------------------------------------------------------------------------------------------
 #undef LOCTEXT_NAMESPACE
 //------------------------------------------------------------------------------------------------------------
-void AsModule_Menu_Config::Throw()
+const void AsModule_Menu_Config::Throw()
 {
 	return throw 13;
 }
 //------------------------------------------------------------------------------------------------------------
-
-
-
-

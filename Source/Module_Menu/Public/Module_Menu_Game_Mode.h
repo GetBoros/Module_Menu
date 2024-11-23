@@ -6,6 +6,8 @@
 #include "Module_Menu_Game_Mode.generated.h"
 
 // AModule_Menu_Game_Mode
+class UGameUserSettings;
+//-----------------------------------------------------------------------------------------------------------
 UCLASS() class MODULE_MENU_API AAModule_Menu_Game_Mode : public AGameModeBase
 {
 	GENERATED_BODY()
@@ -29,7 +31,8 @@ public:
 	- CTRL + T || + Q ||
 - Go To Line:
 	- CTRL + G
-
+- Quick if pragma
+	- CTRL + K,S  // + 1
 
 */
 #pragma endregion
@@ -55,22 +58,28 @@ V			- Get All Tab button and call again Get Tab Button Settings?
 V	- Menu Main
 V		- Can hide background Menu
 
-X	- Localization:
-		- Set Full localization 2 language
-		- Optimaze, Refactoring
+V	- Localization:
+V		- Set Full localization 2 language
+V		- Optimaze, Refactoring
 
-X	- New Game Open Level
+V	- New Game Open Level
 		- Create Level with simple map without lumen nanite
+
+X	- How to open setting menu in game?
+X		- Need think about!
+
+X		- Changed language don`t save, from eng to ru, when restart game again eng
+			- Add to .ini localization, and can choose load ru en or elsewhere
+X			- When create save / load we load setting with language and just apply language
 
 */
 //-----------------------------------------------------------------------------------------------------------
-
-// SOMEDAY
+#pragma endregion
+//-----------------------------------------------------------------------------------------------------------
+#pragma region TASKS NEED FIX
 /*
-X		- Changed language don`t save, from eng to ru, when restart game again eng
-			- Add to .ini localization, and can choose load ru en or elsewhere
-
+V	- While toogle show fps it`s not update current state toogled or not
+X	- If graphic settings isn`t standart have problem
 */
-
 #pragma endregion
 //-----------------------------------------------------------------------------------------------------------

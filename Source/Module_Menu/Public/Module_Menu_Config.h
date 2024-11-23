@@ -1,5 +1,4 @@
 #pragma once
-#include <Internationalization/Text.h>
 #include "GameFramework/GameUserSettings.h"
 
 // ENUMS
@@ -74,8 +73,6 @@ enum class EModule_Menu_Widget_Type : uint8
 
 
 // AsModule_Menu_Config
-
-class UGameUserSettings;
 class MODULE_MENU_API AsModule_Menu_Config
 {
 public:
@@ -86,21 +83,18 @@ public:
 	static const FText Get_Localization_Text_Slider_State_Default(const int button_setting_count);  // Localized State Default
 	static const FText Get_Localization_Text_Slider_State_Custom(const int button_setting_count);  // Localized State Resolution
 
+	static const FText Get_Localization_Text_Tab_Button_Name(const EOption_Type button_type);  // Localized State Resolution
+
 	static UGameUserSettings *User_Settings;
 
 	static constexpr int Button_Setting_Count = 5;
+	static constexpr const wchar_t *Slider_State_Resoultion[Button_Setting_Count] = { L"960 x 540", L"1280 x 720", L"1920 x 1080", L"2560 x 1440", L"3840 x 2160" };
 	static constexpr FLinearColor Button_Active = FLinearColor(0.017642f, 0.026241f, 0.056128f);
 	static constexpr FLinearColor Button_Inactive = FLinearColor(0.066626f, 0.341915f, 0.887923f);
 
 	static const FName Button_Name_Defaults[Button_Setting_Count];
 	static const FIntPoint Screen_Resolution_Array[Button_Setting_Count];
-
-	static constexpr const wchar_t *Button_Tab_Names[static_cast<int>(EOption_Type::EPT_Last)] = { 
-		L"Quality Presset : ", L"Shadows : ", L"Foliage : ", L"Texture : ", L"Shading : ", L"Reflection : ", L"Anti Aliasing : ",
-		L"Visual Effects : ", L"View Distances : ", L"Post Processing : ", L"Global Illumination : ", L"",
-		L"Window Mode : ", L"Frame Rate : ", L"Screen Resolution : ", L"Screen Percentage : ", L"Toogle Directx : ", L"Show FPS : " };
 	
-	static constexpr const wchar_t *Slider_State_Resoultion[Button_Setting_Count] = { L"960 x 540", L"1280 x 720", L"1920 x 1080", L"2560 x 1440", L"3840 x 2160" };
-	static void Throw();
+	static const void Throw();
 };
 //------------------------------------------------------------------------------------------------------------
