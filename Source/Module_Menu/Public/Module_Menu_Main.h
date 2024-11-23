@@ -19,9 +19,9 @@ public:
 	EModule_Menu_Option_Button_Tabs Button_Switcher_State_Index;
 	UWidgetSwitcher *WidgetSwitcher_Tab;  // After pressed need activate tab
 
-	static UAModule_Menu_Option_Button_Switcher *Button_Previous;
-
 	UPROPERTY(meta = (BindWidget) ) UButton *Button_Hitbox;  // Handle Pressed
+	
+	static UAModule_Menu_Option_Button_Switcher *Button_Previous;
 
 private:
 	UFUNCTION() void Button_Pressed();  // Handle Module_Menu_Button_State with unique features
@@ -49,8 +49,8 @@ public:
 private:
 	void Get_Tab_Buttons_Settings();  // Use EOption_Type to have unique feature | Initialize Slider value
 	void Set_Tab_Buttons_Settings(const float changed_value);  // Update setting state
-	void Slider_Text_Block_Update(const int button_index);  // Set unique text to slider text block use Slider Text Value
-	void Button_Quality_Redrawing() const;  // Update all quality tab button while change presset
+	void Set_Slider_Text_Block(const int button_index);  // Set unique text to slider text block use Slider Text Value
+	void Tab_Buttons_Quality_Redraw() const;  // Update all quality tab button while change presset
 	void DirectX_Switcher() const;
 
 	UFUNCTION() void Button_Slider_Value_Changed(const float changed_value);  // Update setting state
@@ -93,7 +93,7 @@ UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Option : public UUserWid
 	GENERATED_BODY()
 
 public:
-	void Create_Menu_Option(TArray<TSubclassOf<UUserWidget>> *widget_type);
+	void Create_Menu_Option(TArray<TSubclassOf<UUserWidget> > *widget_type);
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget) ) UHorizontalBox *Horizontal_Box_Buttons;  // toggle WidgetSwitcher_Tab
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget) ) UWidgetSwitcher *Widget_Switcher_Tab;  // Switch widgets
@@ -117,7 +117,7 @@ public:
 	EModule_Menu_Main_Button_State Module_Menu_Button_State;  // Each button has unique state
 	FName Level_To_Open;  // Used to open new level while pressed on New Game or Continue
 	UUserWidget *Parent_Ptr;  // Ptr to parent class, useing to remove parent from viewport and destroy all created widget
-	TArray<TSubclassOf<UUserWidget>> *Widget_Type;
+	TArray<TSubclassOf<UUserWidget> > *Widget_Type;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UButton *Button_Hitbox;  // Binded in Child of those class
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UTextBlock *Button_Text_Block;  // Handle Pressed
@@ -141,8 +141,10 @@ UCLASS(meta = (DisableNativeTick) ) class MODULE_MENU_API UAModule_Menu_Main : p
 	GENERATED_BODY()
 
 public:
-	void Buttons_Menu_Setup(const FName &level, TArray<TSubclassOf<UUserWidget>> &widget_type);
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Store Buttons", meta = (BindWidget) ) UVerticalBox *Vertical_Box_Menu_Buttons;
+	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Can called in BeginPlay cpp | Create Main Menu and other menus options.") ) void Create_Menu_Main();
+
+	UPROPERTY(EditAnywhere, Category = "Init", meta = (ToolTip = "Used to open new level while pressed on New Game M_Button") ) FName New_Game_Level_Open_Name;
+	UPROPERTY(EditAnywhere, Category = "Init", meta = (ToolTip = "M_Main | M_Button | M_Option | MO_Button | Tab | T_Button") ) TArray<TSubclassOf<UUserWidget> > Module_Widgets;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UVerticalBox *Vertical_Box_Menu_Buttons;
 };
 //-----------------------------------------------------------------------------------------------------------

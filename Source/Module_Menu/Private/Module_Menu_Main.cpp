@@ -146,7 +146,7 @@ void UAModule_Menu_Tab_Button::Set_Tab_Buttons_Settings(const float changed_valu
 	{
 	case EOption_Type::EPT_Quality_Presset:
 		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetOverallScalabilityLevel(changed_value);
-		Button_Quality_Redrawing();
+		Tab_Buttons_Quality_Redraw();
 		break;
 	case EOption_Type::EPT_Quality_Shadows:
 		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetShadowQuality(changed_value);
@@ -213,7 +213,7 @@ void UAModule_Menu_Tab_Button::Set_Tab_Buttons_Settings(const float changed_valu
 	}
 }
 //-----------------------------------------------------------------------------------------------------------
-void UAModule_Menu_Tab_Button::Slider_Text_Block_Update(const int button_index)
+void UAModule_Menu_Tab_Button::Set_Slider_Text_Block(const int button_index)
 {
 	if (EOption_Type::EPT_Graphic_Last > Button_Tab_Type)  // Handle quality settings other is unique
 		if (button_index == -1)  // If presset is custom show it
@@ -222,7 +222,7 @@ void UAModule_Menu_Tab_Button::Slider_Text_Block_Update(const int button_index)
 			Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Default( (int)button_index) );
 }
 //-----------------------------------------------------------------------------------------------------------
-void UAModule_Menu_Tab_Button::Button_Quality_Redrawing() const
+void UAModule_Menu_Tab_Button::Tab_Buttons_Quality_Redraw() const
 {
 	TArray<UWidget *> parent_childs = GetParent() -> GetAllChildren();
 	UAModule_Menu_Tab_Button *module_menu_tab_button = 0;
@@ -257,7 +257,7 @@ void UAModule_Menu_Tab_Button::DirectX_Switcher() const
 void UAModule_Menu_Tab_Button::Button_Slider_Value_Changed(const float changed_value)
 {
 	Set_Tab_Buttons_Settings(changed_value);  // Change setting
-	Slider_Text_Block_Update(changed_value);  // Show in UI at which value change
+	Set_Slider_Text_Block(changed_value);  // Show in UI at which value change
 }
 //-----------------------------------------------------------------------------------------------------------
 void UAModule_Menu_Tab_Button::Settings_Apply()
@@ -316,7 +316,7 @@ void UAModule_Menu_Option_Tab::Create_Tab(EModule_Menu_Option_Button_Tabs tab_bu
 
 
 // UAModule_Menu_Option
-void UAModule_Menu_Option::Create_Menu_Option(TArray<TSubclassOf<UUserWidget>> *widget_type)
+void UAModule_Menu_Option::Create_Menu_Option(TArray<TSubclassOf<UUserWidget> > *widget_type)
 {
 	UAModule_Menu_Option_Button_Switcher *button_tab_switcher = 0;  // this widget swithes tab
 	UAModule_Menu_Option_Tab *tab_widget = 0;  // tab with widgets buttons
@@ -409,24 +409,37 @@ void UAModule_Menu_Main_Button::Button_Unhovered()
 
 
 // UAModule_Menu_Main
-void UAModule_Menu_Main::Buttons_Menu_Setup(const FName &level, TArray<TSubclassOf<UUserWidget>> &widget_type)
+void UAModule_Menu_Main::Create_Menu_Main()
 {
-	UAModule_Menu_Main_Button *menu_button_array[(int)EModule_Menu_Main_Button_State::Count];  // All Buttons ptrs || can move to func
-	
-	for (int i = 0; i < (int)EModule_Menu_Main_Button_State::Count; i++)
+	int i = 0;
+	UAModule_Menu_Main *module_menu_widget = 0;
+	APlayerController *player_controller = 0;
+	FInputModeUIOnly input_mode_ui_only {};
+	UAModule_Menu_Main_Button *menu_button_array[(int)EModule_Menu_Main_Button_State::Count] = {};  // All Buttons ptrs || can move to func
+
+	// Or make in one func?
+	AsModule_Menu_Config::User_Settings = GEngine->GetGameUserSettings();
+	AsModule_Menu_Config::User_Settings->LoadSettings();
+	AsModule_Menu_Config::User_Settings->ApplySettings(false);
+
+	player_controller = GetWorld()->GetFirstPlayerController();
+	player_controller->SetShowMouseCursor(true);
+	player_controller->SetInputMode(input_mode_ui_only);
+
+	for (i = 0; i < (int)EModule_Menu_Main_Button_State::Count; i++)
 	{// Create Menu Main Buttons based on declared buttons state
 
-		menu_button_array[i] = CreateWidget<UAModule_Menu_Main_Button>(this, widget_type[(int)EModule_Menu_Widget_Type::WT_Main_Button]);  // Create widgets based Menu Main Button Template
+		menu_button_array[i] = CreateWidget<UAModule_Menu_Main_Button>(this, Module_Widgets[(int)EModule_Menu_Widget_Type::WT_Main_Button]);  // Create widgets based Menu Main Button Template
 		menu_button_array[i]->Create_Button( (EModule_Menu_Main_Button_State)i);  // Set unique button state described in class
 		Vertical_Box_Menu_Buttons->AddChild(menu_button_array[i]);  // Add widget as child to horrizontal box
 	}
 
 	// 1.0. Add features to unique buttons
 	menu_button_array[(int)EModule_Menu_Main_Button_State::New_Game]->Parent_Ptr = this;  // Need to destroy all widgets
-	menu_button_array[(int)EModule_Menu_Main_Button_State::New_Game]->Level_To_Open = level;  // Name to open level while new game pressed button
+	menu_button_array[(int)EModule_Menu_Main_Button_State::New_Game]->Level_To_Open = New_Game_Level_Open_Name;  // Name to open level while new game pressed button
 
 	// 1.1. Option Button, Set templates needet to create all buttons tabs other widgets
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Parent_Ptr = this;
-	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Widget_Type = &widget_type;
+	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Widget_Type = &Module_Widgets;
 }
 //-----------------------------------------------------------------------------------------------------------
