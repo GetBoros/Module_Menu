@@ -30,19 +30,32 @@ public:
 */
 #pragma endregion
 //-----------------------------------------------------------------------------------------------------------
-#pragma region TASKS Menu Main
+#pragma region TASKS_MENU_MAIN
 /*
-	- How we can do code better?:
-V		- Apply resolution only when released button | Window Mode too | Directx | Show Frame
-V		- Toogle Directx show current DX12|11
-V		- 70 fps on dxt 11
-V		- Frame rate slider text don`t update in shipping show
-V	- Make User_Config statis as AsModule_Menu
-V	- Try to make as more as can const func or don`t need?
 
+X	- If need choose buttons with keyboard arrow?
+		- Set Focus
+
+X	- Erease Config in future, while menu main will be released?
+
+X		- Changed language don`t save, from eng to ru, when restart game again eng
+			- Add to .ini localization, and can choose load ru en or elsewhere
+X			- When create save / load we load setting with language and just apply language
+
+*/
 //-----------------------------------------------------------------------------------------------------------
-// Current
+#pragma endregion
 //-----------------------------------------------------------------------------------------------------------
+#pragma region TASKS_NEED_FIX
+/*
+V	- While toogle show fps it`s not update current state toogled or not
+X	- If graphic settings isn`t standart have problem
+		- Don`t know how to see it?
+*/
+#pragma endregion
+//-----------------------------------------------------------------------------------------------------------
+#pragma region TASKS_DONE
+/*
 V	- Quality Presset:
 V		- Change other settings like shadow, texture, foliage just update visual in UI
 V			- When Change presset need refresh all button | menu quality?
@@ -58,21 +71,19 @@ V		- Optimaze, Refactoring
 V	- New Game Open Level
 		- Create Level with simple map without lumen nanite
 
-X	- How to open setting menu in game?
-X		- Need think about!
+V	- How to open setting menu in game?
+V		- Can open settings in game and apply it
 
-X		- Changed language don`t save, from eng to ru, when restart game again eng
-			- Add to .ini localization, and can choose load ru en or elsewhere
-X			- When create save / load we load setting with language and just apply language
+V	- How we can do code better?:
+V		- Apply resolution only when released button | Window Mode too | Directx | Show Frame
+V		- Toogle Directx show current DX12|11
+V		- 70 fps on dxt 11
+V		- Frame rate slider text don`t update in shipping show
+V	- Make User_Config statis as AsModule_Menu
+V	- Try to make as more as can const func or don`t need?
 
-*/
-//-----------------------------------------------------------------------------------------------------------
-#pragma endregion
-//-----------------------------------------------------------------------------------------------------------
-#pragma region TASKS NEED FIX
-/*
-V	- While toogle show fps it`s not update current state toogled or not
-X	- If graphic settings isn`t standart have problem
+
+
 */
 #pragma endregion
 //-----------------------------------------------------------------------------------------------------------

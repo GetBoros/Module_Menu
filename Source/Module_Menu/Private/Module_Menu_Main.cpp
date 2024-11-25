@@ -369,7 +369,7 @@ void UAModule_Menu_Main_Button::Button_Pressed()
 		break;
 
 	case EModule_Menu_Main_Button_State::Continue:
-		//Parent_Ptr->RemoveFromParent();
+		Parent_Ptr->RemoveFromParent();
 		break;
 
 	case EModule_Menu_Main_Button_State::Settings:
@@ -409,24 +409,29 @@ void UAModule_Menu_Main_Button::Button_Unhovered()
 
 
 // UAModule_Menu_Main
-void UAModule_Menu_Main::Create_Menu_Main()
+void UAModule_Menu_Main::Create_Menu_Main(const bool is_in_game)
 {
 	int i = 0;
+	EModule_Menu_Main_Button_State button_first;
 	UAModule_Menu_Main *module_menu_widget = 0;
 	APlayerController *player_controller = 0;
 	FInputModeUIOnly input_mode_ui_only {};
 	UAModule_Menu_Main_Button *menu_button_array[(int)EModule_Menu_Main_Button_State::Count] = {};  // All Buttons ptrs || can move to func
 
-	// Or make in one func?
+	button_first = is_in_game ? EModule_Menu_Main_Button_State::Continue : EModule_Menu_Main_Button_State::New_Game;
+	i = (int)button_first;
+
+	// Get and Apply prev settings in config file
 	AsModule_Menu_Config::User_Settings = GEngine->GetGameUserSettings();
 	AsModule_Menu_Config::User_Settings->LoadSettings();
 	AsModule_Menu_Config::User_Settings->ApplySettings(false);
 
+	// Get and Apply input mode
 	player_controller = GetWorld()->GetFirstPlayerController();
 	player_controller->SetShowMouseCursor(true);
 	player_controller->SetInputMode(input_mode_ui_only);
 
-	for (i = 0; i < (int)EModule_Menu_Main_Button_State::Count; i++)
+	for (i; i < (int)EModule_Menu_Main_Button_State::Count; i++)
 	{// Create Menu Main Buttons based on declared buttons state
 
 		menu_button_array[i] = CreateWidget<UAModule_Menu_Main_Button>(this, Module_Widgets[(int)EModule_Menu_Widget_Type::WT_Main_Button]);  // Create widgets based Menu Main Button Template
@@ -435,8 +440,9 @@ void UAModule_Menu_Main::Create_Menu_Main()
 	}
 
 	// 1.0. Add features to unique buttons
-	menu_button_array[(int)EModule_Menu_Main_Button_State::New_Game]->Parent_Ptr = this;  // Need to destroy all widgets
-	menu_button_array[(int)EModule_Menu_Main_Button_State::New_Game]->Level_To_Open = New_Game_Level_Open_Name;  // Name to open level while new game pressed button
+	menu_button_array[(int)button_first]->Button_Hovered();
+	menu_button_array[(int)button_first]->Parent_Ptr = this;  // Need to destroy all widgets
+	menu_button_array[(int)button_first]->Level_To_Open = New_Game_Level_Open_Name;  // Name to open level while new game pressed button
 
 	// 1.1. Option Button, Set templates needet to create all buttons tabs other widgets
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Parent_Ptr = this;

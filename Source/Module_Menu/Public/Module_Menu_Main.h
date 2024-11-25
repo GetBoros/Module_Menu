@@ -123,7 +123,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UTextBlock *Button_Text_Block;  // Handle Pressed
 	UPROPERTY(Transient, meta = (BindWidgetAnim) ) UWidgetAnimation *Button_Animation_Hovered;  // Described in WBP
 
-private:
 	UFUNCTION() void Button_Pressed();  // Handle Module_Menu_Button_State with unique features
 	UFUNCTION() void Button_Hovered();  // Play animation in WBP from 0 to 1
 	UFUNCTION() void Button_Unhovered();  // Play animation in WBP from 1 to 0
@@ -141,7 +140,7 @@ UCLASS(meta = (DisableNativeTick) ) class MODULE_MENU_API UAModule_Menu_Main : p
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Can called in BeginPlay cpp | Create Main Menu and other menus options.") ) void Create_Menu_Main();
+	UFUNCTION(BlueprintCallable, Category = "Init") void Create_Menu_Main(const bool is_in_game);  // 
 
 	UPROPERTY(EditAnywhere, Category = "Init", meta = (ToolTip = "Used to open new level while pressed on New Game M_Button") ) FName New_Game_Level_Open_Name;
 	UPROPERTY(EditAnywhere, Category = "Init", meta = (ToolTip = "M_Main | M_Button | M_Option | MO_Button | Tab | T_Button") ) TArray<TSubclassOf<UUserWidget> > Module_Widgets;
