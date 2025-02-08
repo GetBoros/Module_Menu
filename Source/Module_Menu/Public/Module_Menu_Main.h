@@ -142,7 +142,7 @@ UCLASS(meta = (DisableNativeTick) ) class MODULE_MENU_API UAModule_Menu_Main : p
 public:
 	UFUNCTION(BlueprintCallable, Category = "Init") void Create_Menu_Main(const bool is_in_game);  // 
 
-	UPROPERTY(EditAnywhere, Category = "Init", meta = (ToolTip = "Used to open new level while pressed on New Game M_Button") ) FName New_Game_Level_Open_Name;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Init", meta = (ExposeOnSpawn = "true") ) FName New_Game_Level_Open_Name;
 	UPROPERTY(EditAnywhere, Category = "Init", meta = (ToolTip = "M_Main | M_Button | M_Option | MO_Button | Tab | T_Button") ) TArray<TSubclassOf<UUserWidget> > Module_Widgets;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UVerticalBox *Vertical_Box_Menu_Buttons;
 };

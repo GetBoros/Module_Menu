@@ -365,6 +365,7 @@ void UAModule_Menu_Main_Button::Button_Pressed()
 	{
 	case EModule_Menu_Main_Button_State::New_Game:
 		UGameplayStatics::OpenLevel(GetWorld(), Level_To_Open);
+		UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(FInputModeGameOnly() );
 		Parent_Ptr->RemoveFromParent();
 		break;
 
@@ -439,7 +440,7 @@ void UAModule_Menu_Main::Create_Menu_Main(const bool is_in_game)
 		Vertical_Box_Menu_Buttons->AddChild(menu_button_array[i]);  // Add widget as child to horrizontal box
 	}
 
-	// 1.0. Add features to unique buttons
+	// 1.0. Add features to unique buttons || New Game Button - Functionality
 	menu_button_array[(int)button_first]->Button_Hovered();
 	menu_button_array[(int)button_first]->Parent_Ptr = this;  // Need to destroy all widgets
 	menu_button_array[(int)button_first]->Level_To_Open = New_Game_Level_Open_Name;  // Name to open level while new game pressed button
@@ -448,4 +449,4 @@ void UAModule_Menu_Main::Create_Menu_Main(const bool is_in_game)
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Parent_Ptr = this;
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Widget_Type = &Module_Widgets;
 }
-//-----------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------- 432(os)  - 452 Lines
