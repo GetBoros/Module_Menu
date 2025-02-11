@@ -370,6 +370,8 @@ void UAModule_Menu_Main_Button::Button_Pressed()
 		break;
 
 	case EModule_Menu_Main_Button_State::Continue:
+		UGameplayStatics::OpenLevel(GetWorld(), Level_To_Open);
+		UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(FInputModeGameOnly() );
 		Parent_Ptr->RemoveFromParent();
 		break;
 
@@ -410,7 +412,7 @@ void UAModule_Menu_Main_Button::Button_Unhovered()
 
 
 // UAModule_Menu_Main
-void UAModule_Menu_Main::Create_Menu_Main(const bool is_in_game)
+void UAModule_Menu_Main::Create_Menu_Main(const bool is_new_game_button)
 {
 	int i = 0;
 	EModule_Menu_Main_Button_State button_first;
@@ -419,7 +421,7 @@ void UAModule_Menu_Main::Create_Menu_Main(const bool is_in_game)
 	FInputModeUIOnly input_mode_ui_only {};
 	UAModule_Menu_Main_Button *menu_button_array[(int)EModule_Menu_Main_Button_State::Count] = {};  // All Buttons ptrs || can move to func
 
-	button_first = is_in_game ? EModule_Menu_Main_Button_State::Continue : EModule_Menu_Main_Button_State::New_Game;
+	button_first = is_new_game_button ? EModule_Menu_Main_Button_State::New_Game : EModule_Menu_Main_Button_State::Continue;
 	i = (int)button_first;
 
 	// Get and Apply prev settings in config file
