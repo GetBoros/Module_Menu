@@ -140,7 +140,7 @@ UCLASS(meta = (DisableNativeTick) ) class MODULE_MENU_API UAModule_Menu_Main : p
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Init") void Create_Menu_Main(const bool is_new_game_button);
+	UFUNCTION(BlueprintCallable, Category = "Init") void Create_Menu_Main(const bool is_continue_button);
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Init", meta = (ExposeOnSpawn = "true") ) FName New_Game_Level_Open_Name;
 	UPROPERTY(EditAnywhere, Category = "Init", meta = (ToolTip = "M_Main | M_Button | M_Option | MO_Button | Tab | T_Button") ) TArray<TSubclassOf<UUserWidget> > Module_Widgets;
