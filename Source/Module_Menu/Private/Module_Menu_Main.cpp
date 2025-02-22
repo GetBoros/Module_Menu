@@ -370,7 +370,12 @@ void UAModule_Menu_Main_Button::Button_Pressed()
 		break;
 
 	case EModule_Menu_Main_Button_State::Continue:
-		UGameplayStatics::OpenLevel(GetWorld(), Level_To_Open);
+
+		if (UGameplayStatics::GetCurrentLevelName(GetWorld()) != Level_To_Open)
+			UGameplayStatics::OpenLevel(GetWorld(), Level_To_Open);
+		else
+			UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(false);
+
 		UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(FInputModeGameOnly() );
 		Parent_Ptr->RemoveFromParent();
 		break;
