@@ -46,12 +46,12 @@ void UAModule_Menu_Tab_Button::Button_Setting_Setup()
 void UAModule_Menu_Tab_Button::Get_Tab_Buttons_Settings()
 {
 	int i = 0;
-	int button_index = 0;
+	float slider_value = 0.0f;
 	float slider_step_size = 1.0f;
 	float slider_min_value = 0.0f;
 	float slider_max_value = 4.0f;
 	FIntPoint int_point {};
-	FString slider_text_value;  // Used to update Slider Text Block
+	FString slider_text_value {};  // Used to update Slider Text Block
 
 	Button_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Tab_Button_Name(Button_Tab_Type) );  // Button Name
 
@@ -59,67 +59,68 @@ void UAModule_Menu_Tab_Button::Get_Tab_Buttons_Settings()
 	{// For current button type have unique button setting || Get Setting to an apply it || And Limiting Sliders for unique settings
 
 	case EOption_Type::EPT_Quality_Presset:
-		button_index = AsModule_Menu_Config::User_Settings->GetOverallScalabilityLevel();
+		slider_value = AsModule_Menu_Config::User_Settings->GetOverallScalabilityLevel();
 		break;
 	case EOption_Type::EPT_Quality_Shadows:
-		button_index = AsModule_Menu_Config::User_Settings->GetShadowQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetShadowQuality();
 		break;
 	case EOption_Type::EPT_Quality_Foliage:
-		button_index = AsModule_Menu_Config::User_Settings->GetFoliageQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetFoliageQuality();
 		break;
 	case EOption_Type::EPT_Quality_Texture:
-		button_index = AsModule_Menu_Config::User_Settings->GetTextureQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetTextureQuality();
 		break;
 	case EOption_Type::EPT_Quality_Shading:
-		button_index = AsModule_Menu_Config::User_Settings->GetShadingQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetShadingQuality();
 		break;
 	case EOption_Type::EPT_Quality_Reflection:
-		button_index = AsModule_Menu_Config::User_Settings->GetReflectionQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetReflectionQuality();
 		break;
 	case EOption_Type::EPT_Quality_Anti_Aliasing:
-		button_index = AsModule_Menu_Config::User_Settings->GetAntiAliasingQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetAntiAliasingQuality();
 		break;
 	case EOption_Type::EPT_Quality_Visual_Effects:
-		button_index = AsModule_Menu_Config::User_Settings->GetVisualEffectQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetVisualEffectQuality();
 		break;
 	case EOption_Type::EPT_Quality_View_Distances:
-		button_index = AsModule_Menu_Config::User_Settings->GetViewDistanceQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetViewDistanceQuality();
 		break;
 	case EOption_Type::EPT_Quality_Post_Processing:
-		button_index = AsModule_Menu_Config::User_Settings->GetPostProcessingQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetPostProcessingQuality();
 		break;
 	case EOption_Type::EPT_Quality_Global_Illumination_Quality:
-		button_index = AsModule_Menu_Config::User_Settings->GetGlobalIlluminationQuality();
+		slider_value = AsModule_Menu_Config::User_Settings->GetGlobalIlluminationQuality();
 		break;
 	case EOption_Type::EPT_Window_Mode:
-		button_index = AsModule_Menu_Config::User_Settings->GetFullscreenMode();
-		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Window(button_index) );
+		slider_value = AsModule_Menu_Config::User_Settings->GetFullscreenMode();
+		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Window(slider_value) );
 		slider_max_value = 2.0f;
 		break;
 	case EOption_Type::EPT_Frame_Rate:
-		button_index = AsModule_Menu_Config::User_Settings->GetFrameRateLimit();
-		Slider_Text_Block->SetText(FText::FromString(FString::FromInt(button_index) ) );
 		slider_min_value = 24.0f;
 		slider_max_value = 144.0f;
+		slider_value = FMath::Clamp(AsModule_Menu_Config::User_Settings->GetFrameRateLimit(), slider_min_value, slider_max_value);
+		Slider_Text_Block->SetText(FText::FromString(FString::FromInt(slider_value) ) );
 		break;
 	case EOption_Type::EPT_Screen_Resolution:  // Fix those
 		int_point = AsModule_Menu_Config::User_Settings->GetScreenResolution();
 		for (i = 0; i < AsModule_Menu_Config::Button_Setting_Count; i++)  // Find current screen resolution | need to redraw current setting
 			if (AsModule_Menu_Config::Screen_Resolution_Array[i] == int_point)
-				button_index = i;
-		Slider_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Slider_State_Resoultion[button_index]) );
+				slider_value = i;
+		Slider_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Slider_State_Resoultion[(int)slider_value]) );
 		break;
 	case EOption_Type::EPT_Screen_Percentage:
-		button_index = (int)(AsModule_Menu_Config::User_Settings->GetResolutionScaleNormalized() * 100.0f);
-		Slider_Text_Block->SetText(FText::FromString(FString::FromInt(button_index) ) );
 		slider_min_value = 0.3f;
 		slider_step_size = 0.1f;
 		slider_max_value = 1.0f;
+		slider_value = FMath::Clamp(AsModule_Menu_Config::User_Settings->GetResolutionScaleNormalized(), slider_min_value, slider_max_value);
+		Slider_Text_Block->SetText(FText::FromString(FString::FromInt( (int)(slider_value * 100.0f) ) ) );
 		break;
 	case EOption_Type::EPT_DirectX_Switcher:
 		GConfig->GetString(TEXT("/Script/WindowsTargetPlatform.WindowsTargetSettings"), TEXT("DefaultGraphicsRHI"), slider_text_value, FPaths::ProjectConfigDir() + TEXT("DefaultEngine.ini") );
 		Slider_Text_Block->SetText(FText::FromString(slider_text_value.Right(4) ) );  // 4 - Last 4 chars || Must Be DX12 or DX11
 		slider_max_value = 1.0f;
+		slider_value = slider_text_value.Right(4) == L"DX12" ? 1 : 0;
 		break;
 	case EOption_Type::EPT_Show_Frame_Per_Sec:
 		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Custom( (int)ESlider_Text_State::Toogle) );
@@ -131,72 +132,72 @@ void UAModule_Menu_Tab_Button::Get_Tab_Buttons_Settings()
 	Button_Slider->SetMinValue(slider_min_value);
 	Button_Slider->SetStepSize(slider_step_size);
 	Button_Slider->SetMaxValue(slider_max_value);  // Max setting when 4 is Cinematic and 0 is lowest quality
-	Button_Slider->SetValue(button_index);  // Apply slider settings
+	Button_Slider->SetValue(slider_value);  // Apply slider settings
 
-	if (button_index == -1)  // If presset is custom show it
+	if (slider_value == -1.0f)  // If presset is custom show it
 		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Custom( (int)ESlider_Text_State::Custom_Settings) );
 	
 	if (Button_Tab_Type < EOption_Type::EPT_Graphic_Last)  // Handle quality settings other is unique
-		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Default(button_index) );
+		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Default(slider_value) );
 }
 //-----------------------------------------------------------------------------------------------------------
 void UAModule_Menu_Tab_Button::Set_Tab_Buttons_Settings(const float changed_value)
 {
+	const float ceiled_value = FMath::CeilToFloat(changed_value * 10.0f) / 10.0f;
+
 	switch (Button_Tab_Type)
 	{
 	case EOption_Type::EPT_Quality_Presset:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetOverallScalabilityLevel(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetOverallScalabilityLevel(ceiled_value);
 		Tab_Buttons_Quality_Redraw();
 		break;
 	case EOption_Type::EPT_Quality_Shadows:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetShadowQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetShadowQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Quality_Foliage:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetFoliageQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetFoliageQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Quality_Texture:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetTextureQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetTextureQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Quality_Shading:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetShadingQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetShadingQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Quality_Reflection:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetReflectionQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetReflectionQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Quality_Anti_Aliasing:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetAntiAliasingQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetAntiAliasingQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Quality_Visual_Effects:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetVisualEffectQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetVisualEffectQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Quality_View_Distances:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetViewDistanceQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetViewDistanceQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Quality_Post_Processing:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetPostProcessingQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetPostProcessingQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Quality_Global_Illumination_Quality:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetGlobalIlluminationQuality(changed_value);
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetGlobalIlluminationQuality(ceiled_value);
 		break;
 	case EOption_Type::EPT_Graphic_Last:
 		break;
 	case EOption_Type::EPT_Window_Mode:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetFullscreenMode(EWindowMode::ConvertIntToWindowMode( (int)changed_value) );
-		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Window( (int)changed_value) );
-
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetFullscreenMode(EWindowMode::ConvertIntToWindowMode( (int)ceiled_value) );
+		Slider_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Slider_State_Window( (int)ceiled_value) );
 		break;
 	case EOption_Type::EPT_Frame_Rate:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetFrameRateLimit(changed_value);
-		Slider_Text_Block->SetText(FText::FromString(FString::FromInt(changed_value) ) );
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetFrameRateLimit(ceiled_value);
+		Slider_Text_Block->SetText(FText::FromString(FString::FromInt(ceiled_value) ) );
 		break;
 	case EOption_Type::EPT_Screen_Resolution:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetScreenResolution(AsModule_Menu_Config::Screen_Resolution_Array[(int)changed_value]);
-		Slider_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Slider_State_Resoultion[(int)changed_value]) );
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetScreenResolution(AsModule_Menu_Config::Screen_Resolution_Array[(int)ceiled_value]);
+		Slider_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Slider_State_Resoultion[(int)ceiled_value]) );
 		break;
 	case EOption_Type::EPT_Screen_Percentage:
-		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetResolutionScaleNormalized(changed_value);
-		Slider_Text_Block->SetText(FText::FromString(FString::FromInt((int)(changed_value * 100.0f) ) ) );
-
+		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetResolutionScaleNormalized(ceiled_value);
+		Slider_Text_Block->SetText(FText::FromString(FString::FromInt( (int)(ceiled_value * 100.0f) ) ) );
 		break;
 	case EOption_Type::EPT_DirectX_Switcher:
 		DirectX_Switcher();
@@ -209,6 +210,7 @@ void UAModule_Menu_Tab_Button::Set_Tab_Buttons_Settings(const float changed_valu
 	case EOption_Type::EPT_Last:
 		break;
 	default:
+		AsModule_Menu_Config::Throw();
 		break;
 	}
 }
