@@ -265,7 +265,7 @@ void UAModule_Menu_Tab_Button::Button_Slider_Value_Changed(const float changed_v
 void UAModule_Menu_Tab_Button::Settings_Apply()
 {
 	AsModule_Menu_Config::User_Settings->ApplySettings(false);
-	AsModule_Menu_Config::User_Settings->ApplyResolutionSettings(false);  // !!! Is Bad if not window resolution Apply if changed?
+	AsModule_Menu_Config::User_Settings->ApplyResolutionSettings(false);  // !!! Maybe move to case when changed?
 	AsModule_Menu_Config::User_Settings->SaveConfig();  // Saved to config?
 }
 //-----------------------------------------------------------------------------------------------------------

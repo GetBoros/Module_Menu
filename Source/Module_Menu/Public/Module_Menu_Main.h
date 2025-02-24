@@ -147,3 +147,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UVerticalBox *Vertical_Box_Menu_Buttons;
 };
 //-----------------------------------------------------------------------------------------------------------
+
+#pragma region TASKS
+/*
+	X - Store ptr to all buttons in menu
+*/
+#pragma endregion
