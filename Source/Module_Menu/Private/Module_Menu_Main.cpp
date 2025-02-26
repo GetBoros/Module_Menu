@@ -98,7 +98,7 @@ void UAModule_Menu_Tab_Button::Get_Tab_Buttons_Settings()
 		break;
 	case EOption_Type::EPT_Frame_Rate:
 		slider_min_value = 24.0f;
-		slider_max_value = 144.0f;
+		slider_max_value = 999.0f;
 		slider_value = FMath::Clamp(AsModule_Menu_Config::User_Settings->GetFrameRateLimit(), slider_min_value, slider_max_value);
 		Slider_Text_Block->SetText(FText::FromString(FString::FromInt(slider_value) ) );
 		break;
