@@ -1,14 +1,5 @@
 #include "Module_Menu_Main.h"
-
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/GameUserSettings.h"
-
-#include "Components/Slider.h"
-#include "Components/WidgetSwitcher.h"
-#include "Components/TextBlock.h"
-#include "Components/Button.h"
-#include "Components/HorizontalBox.h"  // WW
-#include "Components/VerticalBox.h"  // WW
+#include "Module_Menu.h"
 
 // UAModule_Menu_Option_Button_Switcher
 UAModule_Menu_Option_Button_Switcher *UAModule_Menu_Option_Button_Switcher::Button_Previous = 0;
@@ -107,7 +98,7 @@ void UAModule_Menu_Tab_Button::Get_Tab_Buttons_Settings()
 		for (i = 0; i < AsModule_Menu_Config::Button_Setting_Count; i++)  // Find current screen resolution | need to redraw current setting
 			if (AsModule_Menu_Config::Screen_Resolution_Array[i] == int_point)
 				slider_value = i;
-		Slider_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Slider_State_Resoultion[(int)slider_value]) );
+		Slider_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Slider_State_Resolution[(int)slider_value]) );
 		break;
 	case EOption_Type::EPT_Screen_Percentage:
 		slider_min_value = 0.3f;
@@ -193,7 +184,7 @@ void UAModule_Menu_Tab_Button::Set_Tab_Buttons_Settings(const float changed_valu
 		break;
 	case EOption_Type::EPT_Screen_Resolution:
 		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetScreenResolution(AsModule_Menu_Config::Screen_Resolution_Array[(int)ceiled_value]);
-		Slider_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Slider_State_Resoultion[(int)ceiled_value]) );
+		Slider_Text_Block->SetText(FText::FromString(AsModule_Menu_Config::Slider_State_Resolution[(int)ceiled_value]) );
 		break;
 	case EOption_Type::EPT_Screen_Percentage:
 		AsModule_Menu_Config::AsModule_Menu_Config::User_Settings->SetResolutionScaleNormalized(ceiled_value);
@@ -324,7 +315,7 @@ void UAModule_Menu_Option::Create_Menu_Option(TArray<TSubclassOf<UUserWidget> > 
 	UAModule_Menu_Option_Tab *tab_widget = 0;  // tab with widgets buttons
 
 	for (int button_index = 0; button_index < (int)EModule_Menu_Option_Button_Tabs::Count; button_index++)
-	{// Create buttons and tabs || Inits all and 
+	{// Create buttons and tabs || Init all and 
 
 		button_tab_switcher = CreateWidget<UAModule_Menu_Option_Button_Switcher>(this, (*widget_type)[(int)EModule_Menu_Widget_Type::WT_Option_Button]);
 		button_tab_switcher->Create_Button(button_index, Widget_Switcher_Tab);
@@ -357,6 +348,12 @@ void UAModule_Menu_Main_Button::Create_Button(const EModule_Menu_Main_Button_Sta
 	Button_Hitbox->OnUnhovered.AddDynamic(this, &UAModule_Menu_Main_Button::Button_Unhovered);
 
 	PlayAnimation(Button_Animation_Hovered, GetAnimationCurrentTime(Button_Animation_Hovered), 1, EUMGSequencePlayMode::Reverse, 1.0f);  // Play and setup anim to end
+}
+//-----------------------------------------------------------------------------------------------------------
+void UAModule_Menu_Main_Button::Set_Button_Focus()
+{
+	GetWorld()->GetTimerManager().SetTimerForNextTick([&]() { this->SetFocus(); });
+	Button_Hovered();
 }
 //-----------------------------------------------------------------------------------------------------------
 void UAModule_Menu_Main_Button::Button_Pressed()
@@ -405,13 +402,13 @@ void UAModule_Menu_Main_Button::Button_Pressed()
 void UAModule_Menu_Main_Button::Button_Hovered()
 {
 	if (Button_Animation_Hovered)
-		PlayAnimation(Button_Animation_Hovered, 0.0f, 1, EUMGSequencePlayMode::Forward, 1.0f);  // ¬оспроизводим анимацию вперед
+		PlayAnimation(Button_Animation_Hovered, 0.0f, 1, EUMGSequencePlayMode::Forward, 1.0f);
 }
 //-----------------------------------------------------------------------------------------------------------
 void UAModule_Menu_Main_Button::Button_Unhovered()
 {
 	if (Button_Animation_Hovered)
-		PlayAnimation(Button_Animation_Hovered, 0.0f, 1, EUMGSequencePlayMode::Reverse, 1.0f);  // ¬оспроизводим анимацию в обратном пор€дке
+		PlayAnimation(Button_Animation_Hovered, 0.0f, 1, EUMGSequencePlayMode::Reverse, 1.0f);
 }
 //-----------------------------------------------------------------------------------------------------------
 
@@ -421,9 +418,9 @@ void UAModule_Menu_Main_Button::Button_Unhovered()
 // UAModule_Menu_Main
 void UAModule_Menu_Main::Create_Menu_Main(const bool is_continue_button)
 {
-	APlayerController *player_controller = 0;
-	FInputModeUIOnly input_mode_ui_only {};
-	UAModule_Menu_Main_Button *menu_button_array[(int)EModule_Menu_Main_Button_State::Count] = {};  // All Buttons ptrs || can move to func
+	APlayerController *player_controller;
+	FInputModeUIOnly input_mode_ui_only;
+	UAModule_Menu_Main_Button *menu_button_array[(int)EModule_Menu_Main_Button_State::Count];  // All Buttons ptrs || can move to func
 
 	// Get and Apply prev settings in config file
 	AsModule_Menu_Config::User_Settings = GEngine->GetGameUserSettings();
@@ -434,24 +431,24 @@ void UAModule_Menu_Main::Create_Menu_Main(const bool is_continue_button)
 	player_controller = GetWorld()->GetFirstPlayerController();
 	player_controller->SetShowMouseCursor(true);
 	player_controller->SetInputMode(input_mode_ui_only);
-
+	
 	for (int i = 0; i < (int)EModule_Menu_Main_Button_State::Count; i++)
 	{// Create Menu Main Buttons based on declared buttons state
 
 		menu_button_array[i] = CreateWidget<UAModule_Menu_Main_Button>(this, Module_Widgets[(int)EModule_Menu_Widget_Type::WT_Main_Button]);  // Create widgets based Menu Main Button Template
 		menu_button_array[i]->Create_Button( (EModule_Menu_Main_Button_State)i);  // Set unique button state described in class
-		Vertical_Box_Menu_Buttons->AddChild(menu_button_array[i]);  // Add widget as child to horrizontal box
+		Vertical_Box_Menu_Buttons->AddChild(menu_button_array[i]);  // Add widget as child to horizontal box
 	}
 
 	// 1.0. Add features to unique buttons || New Game Button - Functionality
-	menu_button_array[is_continue_button]->Button_Hovered();
 	menu_button_array[is_continue_button]->Parent_Ptr = this;  // Need to destroy all widgets
 	menu_button_array[is_continue_button]->Level_To_Open = New_Game_Level_Open_Name;  // Name to open level while new game pressed button
-	menu_button_array[!is_continue_button]->SetIsEnabled(false);
+	menu_button_array[!is_continue_button]->SetIsEnabled(false);  // for New Game
+	menu_button_array[is_continue_button]->Set_Button_Focus();
 
 	// 1.0.0. Features to create other widget and settings
 
-	// 1.1. Option Button, Set templates needet to create all buttons tabs other widgets
+	// 1.1. Option Button, Set templates needed to create all buttons tabs other widgets
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Parent_Ptr = this;
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Widget_Type = &Module_Widgets;
 }

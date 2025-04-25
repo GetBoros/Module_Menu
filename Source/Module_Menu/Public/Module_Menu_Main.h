@@ -113,13 +113,14 @@ UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Main_Button : public UUs
 
 public:
 	void Create_Button(const EModule_Menu_Main_Button_State menu_button_state);
-	
+	void Set_Button_Focus();
+
 	EModule_Menu_Main_Button_State Module_Menu_Button_State;  // Each button has unique state
 	FName Level_To_Open;  // Used to open new level while pressed on New Game or Continue
-	UUserWidget *Parent_Ptr;  // Ptr to parent class, useing to remove parent from viewport and destroy all created widget
+	UUserWidget *Parent_Ptr;  // Ptr to parent class, using to remove parent from viewport and destroy all created widget
 	TArray<TSubclassOf<UUserWidget> > *Widget_Type;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UButton *Button_Hitbox;  // Binded in Child of those class
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UButton *Button_Hitbox;  // bind in Child of those class
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UTextBlock *Button_Text_Block;  // Handle Pressed
 	UPROPERTY(Transient, meta = (BindWidgetAnim) ) UWidgetAnimation *Button_Animation_Hovered;  // Described in WBP
 

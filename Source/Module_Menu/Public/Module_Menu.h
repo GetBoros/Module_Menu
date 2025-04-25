@@ -1,5 +1,19 @@
 #pragma once
 
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameUserSettings.h"
+
+#include "Components/Slider.h"
+#include "Components/WidgetSwitcher.h"
+#include "Components/TextBlock.h"
+#include "Components/Button.h"
+#include "Components/HorizontalBox.h"  // WW
+#include "Components/VerticalBox.h"  // WW
+
+// Config
+//#include <Internationalization/Text.h>
+//#include "GameFramework/GameUserSettings.h"
+
 #include "CoreMinimal.h"
 
 // Tutorials
@@ -17,7 +31,7 @@
 
 	- Class Specifier :
 		- Example : UCLASS(Abstract, meta = )
-			- (Abstract, AdvancedClassDisplay, AutoCollapseCategories=(cat1, cat2, ...), AutoExpandCategories=(Cat, cat2, ...), Blueprintable, BlueprintType, MinimalAPI, Const, Config=ConfigName
+			- (Abstract, AdvancedClassDisplay, AutoCollapseCategories=(cat1, cat2, ...), AutoExpandCategories=(Cat, cat2, ...), Blueprint able, BlueprintType, MinimalAPI, Const, Config=ConfigName
 		- Example : Metadata Specifiers :
 			- BlueprintSpawnableComponent, BlueprintThreadSafe, ChildCannotTick, 
 			

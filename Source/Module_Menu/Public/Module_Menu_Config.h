@@ -1,5 +1,4 @@
 #pragma once
-#include "GameFramework/GameUserSettings.h"
 
 // ENUMS
 enum class EModule_Menu_Main_Button_State : uint8
@@ -88,7 +87,7 @@ public:
 	static UGameUserSettings *User_Settings;
 
 	static constexpr int Button_Setting_Count = 5;
-	static constexpr const wchar_t *Slider_State_Resoultion[Button_Setting_Count] = { L"960 x 540", L"1280 x 720", L"1920 x 1080", L"2560 x 1440", L"3840 x 2160" };
+	static constexpr const wchar_t *Slider_State_Resolution[Button_Setting_Count] = { L"960 x 540", L"1280 x 720", L"1920 x 1080", L"2560 x 1440", L"3840 x 2160" };
 	static constexpr FLinearColor Button_Active = FLinearColor(0.017642f, 0.026241f, 0.056128f);
 	static constexpr FLinearColor Button_Inactive = FLinearColor(0.066626f, 0.341915f, 0.887923f);
 
