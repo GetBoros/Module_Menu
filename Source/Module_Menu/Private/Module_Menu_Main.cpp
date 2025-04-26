@@ -1,5 +1,8 @@
 #include "Module_Menu_Main.h"
 #include "Module_Menu.h"
+#include "Components/Button.h"
+
+
 
 // UAModule_Menu_Option_Button_Switcher
 UAModule_Menu_Option_Button_Switcher *UAModule_Menu_Option_Button_Switcher::Button_Previous = 0;
@@ -336,6 +339,7 @@ void UAModule_Menu_Option::Create_Menu_Option(TArray<TSubclassOf<UUserWidget> > 
 
 
 
+
 // UAModule_Menu_Main_Button
 void UAModule_Menu_Main_Button::Create_Button(const EModule_Menu_Main_Button_State menu_button_state)
 {
@@ -343,17 +347,12 @@ void UAModule_Menu_Main_Button::Create_Button(const EModule_Menu_Main_Button_Sta
 	Button_Text_Block->SetText(AsModule_Menu_Config::Get_Localization_Text_Menu_Main(Module_Menu_Button_State) );  // Setup button name
 
 	// Bind buttons events 
+
 	Button_Hitbox->OnPressed.AddDynamic(this, &UAModule_Menu_Main_Button::Button_Pressed);
 	Button_Hitbox->OnHovered.AddDynamic(this, &UAModule_Menu_Main_Button::Button_Hovered);
 	Button_Hitbox->OnUnhovered.AddDynamic(this, &UAModule_Menu_Main_Button::Button_Unhovered);
 
 	PlayAnimation(Button_Animation_Hovered, GetAnimationCurrentTime(Button_Animation_Hovered), 1, EUMGSequencePlayMode::Reverse, 1.0f);  // Play and setup anim to end
-}
-//-----------------------------------------------------------------------------------------------------------
-void UAModule_Menu_Main_Button::Set_Button_Focus()
-{
-	GetWorld()->GetTimerManager().SetTimerForNextTick([&]() { this->SetFocus(); });
-	Button_Hovered();
 }
 //-----------------------------------------------------------------------------------------------------------
 void UAModule_Menu_Main_Button::Button_Pressed()
@@ -439,12 +438,10 @@ void UAModule_Menu_Main::Create_Menu_Main(const bool is_continue_button)
 		menu_button_array[i]->Create_Button( (EModule_Menu_Main_Button_State)i);  // Set unique button state described in class
 		Vertical_Box_Menu_Buttons->AddChild(menu_button_array[i]);  // Add widget as child to horizontal box
 	}
-
 	// 1.0. Add features to unique buttons || New Game Button - Functionality
 	menu_button_array[is_continue_button]->Parent_Ptr = this;  // Need to destroy all widgets
 	menu_button_array[is_continue_button]->Level_To_Open = New_Game_Level_Open_Name;  // Name to open level while new game pressed button
 	menu_button_array[!is_continue_button]->SetIsEnabled(false);  // for New Game
-	menu_button_array[is_continue_button]->Set_Button_Focus();
 
 	// 1.0.0. Features to create other widget and settings
 
