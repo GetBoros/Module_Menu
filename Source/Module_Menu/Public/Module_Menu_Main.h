@@ -8,7 +8,10 @@
 class UWidgetSwitcher;
 class UTextBlock;
 class UButton;
-//-----------------------------------------------------------------------------------------------------------
+class UVerticalBox;
+class UHorizontalBox;
+class USlider;
+//-----------------------------------------------------------------------------------------------------------  Menu_Option Start
 UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Option_Button_Switcher : public UUserWidget
 {// 
 	GENERATED_BODY()
@@ -28,14 +31,6 @@ private:
 
 	UPROPERTY(meta = (BindWidget) ) UTextBlock *Button_Text_Block;
 };
-//-----------------------------------------------------------------------------------------------------------
-
-
-
-
-// UAModule_Menu_Tab_Button
-class UTextBlock;
-class USlider;
 //-----------------------------------------------------------------------------------------------------------
 UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Tab_Button : public UUserWidget
 {
@@ -61,14 +56,6 @@ private:
 	UPROPERTY(meta = (BindWidget) ) USlider *Button_Slider;
 };
 //-----------------------------------------------------------------------------------------------------------
-
-
-
-
-// UAModule_Menu_Option_Tab
-class UTextBlock;
-class UVerticalBox;
-//-----------------------------------------------------------------------------------------------------------
 UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Option_Tab : public UUserWidget
 {
 	GENERATED_BODY()
@@ -80,14 +67,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) UVerticalBox *Vertical_Box_Tab_Buttons;
 };
 //-----------------------------------------------------------------------------------------------------------
-
-
-
-
-// UAModule_Menu_Main
-class UHorizontalBox;
-class UWidgetSwitcher;
-//-----------------------------------------------------------------------------------------------------------
 UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Option : public UUserWidget
 {
 	GENERATED_BODY()
@@ -98,20 +77,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget) ) UHorizontalBox *Horizontal_Box_Buttons;  // toggle WidgetSwitcher_Tab
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget) ) UWidgetSwitcher *Widget_Switcher_Tab;  // Switch widgets
 };
-//-----------------------------------------------------------------------------------------------------------
-
-
-
-
-// UAModule_Menu_Main_Button
-class UButton;
-class UTextBlock;
-//-----------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------  Menu_Main Start || Menu_Option END
 UCLASS(meta = (DisableNativeTick) ) class UAModule_Menu_Main_Button : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
+	virtual void NativeOnAddedToFocusPath(const FFocusEvent &in_focus_event);
+	virtual void NativeOnRemovedFromFocusPath(const FFocusEvent &in_focus_event);
+
 	void Create_Button(const EModule_Menu_Main_Button_State menu_button_state);
 
 	EModule_Menu_Main_Button_State Module_Menu_Button_State;  // Each button has unique state
@@ -128,13 +102,6 @@ public:
 	UFUNCTION() void Button_Unhovered();  // Play animation in WBP from 1 to 0
 };
 //-----------------------------------------------------------------------------------------------------------
-
-
-
-
-// UAModule_Menu_Main
-class UVerticalBox;
-//-----------------------------------------------------------------------------------------------------------
 UCLASS(meta = (DisableNativeTick) ) class MODULE_MENU_API UAModule_Menu_Main : public UUserWidget
 {
 	GENERATED_BODY()
@@ -146,10 +113,4 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Init", meta = (ToolTip = "M_Main | M_Button | M_Option | MO_Button | Tab | T_Button") ) TArray<TSubclassOf<UUserWidget> > Module_Widgets;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Init", meta = (BindWidget) ) TObjectPtr<UVerticalBox> Vertical_Box_Menu_Buttons;
 };
-//-----------------------------------------------------------------------------------------------------------
-
-#pragma region TASKS
-/*
-	X - Store ptr to all buttons in menu
-*/
-#pragma endregion
+//-----------------------------------------------------------------------------------------------------------  Menu_Main END

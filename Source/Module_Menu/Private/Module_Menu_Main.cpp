@@ -341,6 +341,18 @@ void UAModule_Menu_Option::Create_Menu_Option(TArray<TSubclassOf<UUserWidget> > 
 
 
 // UAModule_Menu_Main_Button
+void UAModule_Menu_Main_Button::NativeOnAddedToFocusPath(const FFocusEvent &in_focus_event)
+{
+	Super::OnAddedToFocusPath(in_focus_event);
+	Button_Hovered();
+}
+//-----------------------------------------------------------------------------------------------------------
+void UAModule_Menu_Main_Button::NativeOnRemovedFromFocusPath(const FFocusEvent &in_focus_event)
+{
+	Super::OnRemovedFromFocusPath(in_focus_event);
+	Button_Unhovered();
+}
+//-----------------------------------------------------------------------------------------------------------
 void UAModule_Menu_Main_Button::Create_Button(const EModule_Menu_Main_Button_State menu_button_state)
 {
 	Module_Menu_Button_State = menu_button_state;  // Setup unique index
@@ -426,11 +438,6 @@ void UAModule_Menu_Main::Create_Menu_Main(const bool is_continue_button)
 	AsModule_Menu_Config::User_Settings->LoadSettings();
 	AsModule_Menu_Config::User_Settings->ApplySettings(false);
 
-	// Get and Apply input mode
-	player_controller = GetWorld()->GetFirstPlayerController();
-	player_controller->SetShowMouseCursor(true);
-	player_controller->SetInputMode(input_mode_ui_only);
-	
 	for (int i = 0; i < (int)EModule_Menu_Main_Button_State::Count; i++)
 	{// Create Menu Main Buttons based on declared buttons state
 
@@ -438,15 +445,21 @@ void UAModule_Menu_Main::Create_Menu_Main(const bool is_continue_button)
 		menu_button_array[i]->Create_Button( (EModule_Menu_Main_Button_State)i);  // Set unique button state described in class
 		Vertical_Box_Menu_Buttons->AddChild(menu_button_array[i]);  // Add widget as child to horizontal box
 	}
+	
 	// 1.0. Add features to unique buttons || New Game Button - Functionality
 	menu_button_array[is_continue_button]->Parent_Ptr = this;  // Need to destroy all widgets
 	menu_button_array[is_continue_button]->Level_To_Open = New_Game_Level_Open_Name;  // Name to open level while new game pressed button
 	menu_button_array[!is_continue_button]->SetIsEnabled(false);  // for New Game
 
-	// 1.0.0. Features to create other widget and settings
-
 	// 1.1. Option Button, Set templates needed to create all buttons tabs other widgets
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Parent_Ptr = this;
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Widget_Type = &Module_Widgets;
+
+	// Get and Apply input mode
+	input_mode_ui_only.SetWidgetToFocus(menu_button_array[is_continue_button]->TakeWidget() );
+	player_controller = GetWorld()->GetFirstPlayerController();
+	player_controller->SetShowMouseCursor(true);
+	player_controller->SetInputMode(input_mode_ui_only);
+	AddToViewport();
 }
 //----------------------------------------------------------------------------------------------------------- 432(os)  - 452 Lines
