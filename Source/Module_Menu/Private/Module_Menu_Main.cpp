@@ -424,7 +424,7 @@ void UAModule_Menu_Main_Button::Button_Unhovered()
 //-----------------------------------------------------------------------------------------------------------
 
 
-
+#include "Engine/LevelStreaming.h" // Добавьте этот include
 
 // UAModule_Menu_Main
 void UAModule_Menu_Main::Create_Menu_Main(const bool is_continue_button)
@@ -455,11 +455,12 @@ void UAModule_Menu_Main::Create_Menu_Main(const bool is_continue_button)
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Parent_Ptr = this;
 	menu_button_array[(int)EModule_Menu_Main_Button_State::Settings]->Widget_Type = &Module_Widgets;
 
-	// Get and Apply input mode
+	// 2.0. Get and Apply input mode
 	input_mode_ui_only.SetWidgetToFocus(menu_button_array[is_continue_button]->TakeWidget() );
 	player_controller = GetWorld()->GetFirstPlayerController();
 	player_controller->SetShowMouseCursor(true);
 	player_controller->SetInputMode(input_mode_ui_only);
 	AddToViewport();
+
 }
 //----------------------------------------------------------------------------------------------------------- 432(os)  - 452 Lines

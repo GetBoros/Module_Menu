@@ -1,6 +1,6 @@
 #include "Module_Menu_Config.h"
-//#include <Internationalization/Text.h>  // Maybe need?
-//#include "GameFramework/GameUserSettings.h"
+#include <Internationalization/Text.h>  // Maybe need?
+#include "GameFramework/GameUserSettings.h"
 
 // AsModule_Menu_Config
 UGameUserSettings *AsModule_Menu_Config::User_Settings = 0;
